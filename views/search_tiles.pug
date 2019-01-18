@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Поиск товаров</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../public/stylesheets/template.css">
+    <link rel="stylesheet" type="text/css" href="../public/stylesheets/product_tiles.css">
+    style 
+        include ../public/stylesheets/template.css 
+        include ../public/stylesheets/product_tiles.css
+
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans|Roboto+Condensed" rel="stylesheet">
+
+
+</head>
+<body style="">
+
+<! WHY WHEN WE HAVE NAVBAR ALREADY CREATED>
+ <!  |                                    >
+ <!  |                                    >
+ <!  v    ???                             >
+
+<div id="navBar"><header class="navbar">
+    <div class="navbar-left">
+        <button class="collapsed" type="button" data-toggle="collapse" data-target="#leftBar">
+            <i class="fas fa-bars nav-icons"></i>
+        </button>
+
+        <a href="#">
+            Asperanto
+        </a>
+    </div>
+
+    <div class="search_width">
+        <form action="" method="get">
+            <input type="search" placeholder="Найти">
+            <button type="button"><i class="fas fa-search nav-icons"></i></button>
+        </form>
+    </div>
+
+    <div class="navbar-right">
+        <a href="#">
+            <div class="circle-nav"></div>
+            <span class="nickname-nav">А.И. Гайдамака</span>
+        </a>
+    </div>
+
+</header></div>
+
+<div class="page-container">
+    <div id="sideBar"><div class="wrap-left-bar">
+        <div class="left-bar left-bar-desktop collapse" id="leftBar">
+            <div class="left-bar-menus">
+                <a data-toggle="collapse" href="#categories">Категории <i class="fas fa-sort-down"></i></a>
+
+                <div class="collapse" id="categories">
+                    <div class="dropright">
+                        <a class="category-items dropdown-toggle" data-toggle="dropdown">
+                            <span class="category-name">Нефтегазовая промышленность</span>
+                            <i class="fas fa-caret-right category-arrow-left"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-item">
+                                privet
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="dropright">
+                        <a class="category-items dropdown-toggle" data-toggle="dropdown">
+                            <span class="category-name">Металлообрабатывающая промышленность</span>
+                            <i class="fas fa-caret-right category-arrow-left"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-item">
+                                privet
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="dropright">
+                        <a class="category-items dropdown-toggle" data-toggle="dropdown">
+                            <span class="category-name">Горнодобывающая промышленность</span>
+                            <i class="fas fa-caret-right category-arrow-left"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-item">
+                                privet
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="dropright">
+                        <a class="category-items dropdown-toggle" data-toggle="dropdown">
+                            <span class="category-name">Машиностроение</span>
+                            <i class="fas fa-caret-right category-arrow-left"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-item">
+                                privet
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="dropright">
+                        <a class="category-items dropdown-toggle" data-toggle="dropdown">
+                            <span class="category-name">Сельское хозяйство</span>
+                            <i class="fas fa-caret-right category-arrow-left"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-item">
+                                privet
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="dropright">
+                        <a class="category-items dropdown-toggle" data-toggle="dropdown">
+                            <span class="category-name">Логистика</span>
+                            <i class="fas fa-caret-right category-arrow-left"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-item">
+                                privet
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="dropright">
+                        <a class="category-items dropdown-toggle" data-toggle="dropdown">
+                            <span class="category-name">Прочие сервисные услуги</span>
+                            <i class="fas fa-caret-right category-arrow-left"></i>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <h6 class="dropdown-item">
+                                privet
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="left-bar-menus">
+                <a class="left-bar-a" href="#">Контрагенты</a>
+            </div>
+        </div> <!-- левая часть (категории и т.д.) -->
+    </div></div>
+
+    <main class="main" role="main">
+        <div class="main-goods">
+            <div class="product-filters-mobile">
+                <a>Цена <i class="fas fa-sort-down filter-category-mobile-icon"></i></a>
+
+                <a>Страна <i class="fas fa-sort-down filter-category-mobile-icon"></i></a>
+
+                <a class="other-filters-mobile">Остальные фильтры <i class="fas fa-sort-down filter-category-mobile-icon"></i></a>
+
+                <a class="filter-small-mobile">Фильтры <i class="fas fa-sort-down filter-category-mobile-icon"></i></a>
+            </div>
+
+            <div class="products">
+                <div class="product-pr window-product">
+                    <div class="product-pr product-name"><h5>Samsung Galaxy A6</h5></div>
+                    <div class="product-pr picture-product">
+                        <img src="../public/images/samsung_galaxy_a6.jpg" alt="norm pic">
+
+                    </div>
+                    <div class="product-pr"><h6>Поставщик: Guandung Bejing Inds</h6></div>
+                    <div class="product-pr"><h5 class="product-price">Цена: 12000 руб.</h5></div>
+
+
+                </div>
+
+                <div class="product-pr window-product">
+                    <div class="product-pr product-name"><h5>Установка буровая 1</h5></div>
+                    <div class="product-pr picture-product">
+                        <img src="../public/images/установка_буровая.jpg" alt="norm pic">
+
+                    </div>
+                    <div class="product-pr"><h6>Поставщик: ЯмалБурСервис</h6></div>
+                    <div class="product-pr"><h5 class="product-price">Цена: 500кк - 650кк руб.</h5></div>
+
+                </div>
+
+                <div class="product-pr window-product">
+                    <div class="product-pr product-name"><h5>Установка буровая 2</h5></div>
+                    <div class="product-pr picture-product">
+                        <img src="../public/images/nopic.png" alt="norm pic">
+
+                    </div>
+                    <div class="product-pr"><h6>Поставщик: ЯмалБурСервис</h6></div>
+                    <div class="product-pr"><h5 class="product-price">Цена: 500кк - 650кк руб.</h5></div>
+
+                </div>
+
+                <div class="product-pr window-product">
+                    <div class="product-pr product-name"><h5>Установка буровая 3</h5></div>
+                    <div class="product-pr picture-product">
+                        <img src="../public/images/nopic.png" alt="norm pic">
+
+                    </div>
+                    <div class="product-pr"><h6>Поставщик: ЯмалБурСервис</h6></div>
+                    <div class="product-pr"><h5 class="product-price">Цена: 500кк - 650кк руб.</h5></div>
+
+                </div>
+
+                <div class="product-pr window-product">
+                    <div class="product-pr product-name"><h5>Установка буровая 4</h5></div>
+                    <div class="product-pr picture-product">
+                        <img src="../public/images/nopic.png" alt="norm pic">
+
+                    </div>
+                    <div class="product-pr"><h6>Поставщик: ЯмалБурСервис</h6></div>
+                    <div class="product-pr"><h5 class="product-price">Цена: 500кк - 650кк руб.</h5></div>
+
+                </div>
+
+                <div class="product-pr window-product">
+
+
+                </div>
+
+            </div>
+
+            <div class="product-filters">
+                <form action="">
+                    <h5>Фильтры</h5>
+
+                    <div class="filter-price">
+                        <div>
+                            <span>Цена:</span>
+                            <button name="currency" value="rub">Валюта: РУБ</button>
+                        </div>
+
+                        <div>
+                            <span>От:</span>
+
+                            <input type="text" name="from">
+                        </div>
+
+                        <div>
+                            <span>До:</span>
+
+                            <input type="text" name="to" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="filter-countries">
+                        <div>Страна-производитель:</div>
+
+                        <div><input type="checkbox" name="russia"> Российская Федерация </div>
+                        <div><input type="checkbox" name="china"> Китай </div>
+                        <div><input type="checkbox" name="india"> Индия </div>
+                        <div><input type="checkbox" name="kazachstan"> Казахстан </div>
+                    </div>
+
+                    <input type="submit" value="Применить" class="filter-button">
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="../js/templatesLoad.js"></script>
+
+</body></html>
