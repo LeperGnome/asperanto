@@ -7,7 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var categoryRouter = require('./routes/category');
 var goodsRouter = require('./routes/goods');
-var searchTilesRouter = require('./routes/serchTilesRouter');
+var searchTilesRouter = require('./routes/serchTiles');
 
 var app = express();
 
