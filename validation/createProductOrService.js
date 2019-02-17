@@ -14,6 +14,9 @@ module.exports = function validateRegisterInput(data) {
   if (!Validator.isLength(data.description, { min: 10 })) {
     errors.description = "Description must be at least 10 characters";
   }
+  if (!Validator.isNumeric(data.price)){
+    errors.price = "Price should be a number";
+  }
 
   if (Validator.isEmpty(data.name)) {
     errors.name = "Name field is reqired";

@@ -1,23 +1,18 @@
 const express = require("express");
-const gravatar = require("gravatar");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const keys = require("../../config/keys");
 const passport = require("passport");
 
 const router = express.Router();
 
-// Import organization model
+// Import  models
 const Organization = require("../../models/Organization");
-
-// Import product model
 const Product = require("../../models/Product");
+const Service = require("../../models/Service");
 
 // Import create organization input valdation
 const validateCreateOrganizationInput = require("../../validation/createOrganization");
 
 // Import create product input valiadtion
-const validateCreateProductInput = require("../../validation/createProduct");
+const validateCreateProductOrServiceInput = require("../../validation/createProductOrService");
 
 //@route POST api/organizations/create
 //@desc  Create organization
@@ -36,7 +31,7 @@ router.post(
     newOrganization = new Organization({
       name: req.body.name,
       industries: req.body.industries.split(","),
-      type: req.body.type.split(","),
+      asperantoType: req.body.asperantoType.split(","),
       businessType: req.body.businessType,
       countryOfIncorporation: req.body.countryOfIncorporation
     });
@@ -103,32 +98,113 @@ router.post(
             // If user is valid member of company with permissions
 
             // Product creation
-            let { inputErrors, isValid } = validateCreateProductInput(req.body);
+            let { errors, isValid } = validateCreateProductOrServiceInput(
+              req.body
+            );
             // Check input validation
             if (!isValid) {
-              return res.status(400).json(inputErrors);
+              return res.status(400).json(errors);
             }
 
+            const productFields = {};
+
+            productFields.name = req.body.name;
+            productFields.price = req.body.price;
+            productFields.description = req.body.description;
+            if (req.body.image) productFields.image = req.body.image;
+
             // Create product obj
-            newProduct = new Product({
-              name: req.body.name,
-              description: req.body.description,
-              price: req.body.price
-            });
+            newProduct = new Product(productFields);
 
             // Save
             newProduct
               .save()
               .then(product => {
                 // Add product to organization list
+                addAsperantoType = "Производитель";
                 organization.productsList.unshift(product);
+
+                // Add asperanto type if not exists
+                if (!organization.asperantoType.includes(addAsperantoType)) {
+                  organization.asperantoType.unshift(addAsperantoType);
+                }
+
+                organization.save().catch(err => res.status(400).json(err));
               })
               .catch(err => console.log(err));
             return res.json(newProduct);
           }
         }
         errors.access = "Access denied";
-        res.status(403).json(errors); // ? Если это удалить, то норм, не знаю в чем проблема
+        res.status(403).json(errors);
+      })
+      .catch(err => res.json(err));
+  }
+);
+
+//@route POST api/organizations/:org_urlname/services/create
+//@desc  Create service
+//@acces Private
+router.post(
+  "/:org_urlname/services/create",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    Organization.findOne({ urlName: req.params.org_urlname })
+      .then(organization => {
+        //check for valid url name
+        if (!organization) {
+          errors.organization = "Organization not found";
+          return res.status(404).json(errors);
+        }
+        // Check for valid user
+        for (let member of organization.members) {
+          if (
+            member.user.toString() === req.user.id &&
+            member.permissions === "admin"
+          ) {
+            // If user is valid member of company with permissions
+
+            // Service creation
+            let { errors, isValid } = validateCreateProductOrServiceInput(
+              req.body
+            );
+            // Check input validation
+            if (!isValid) {
+              return res.status(400).json(errors);
+            }
+
+            const serviceFields = {};
+
+            serviceFields.name = req.body.name;
+            serviceFields.price = req.body.price;
+            serviceFields.description = req.body.description;
+            if (req.body.image) serviceFields.image = req.body.image;
+
+            // Create product obj
+            newService = new Service(serviceFields);
+
+            // Save
+            newService
+              .save()
+              .then(service => {
+                // Add product to organization list
+                addAsperantoType = "Поставщик услуг";
+                organization.servicesList.unshift(service);
+
+                // Add asperanto type if not exists
+                if (!organization.asperantoType.includes(addAsperantoType)) {
+                  organization.asperantoType.unshift(addAsperantoType);
+                }
+
+                organization.save().catch(err => res.status(400).json(err));
+              })
+              .catch(err => console.log(err));
+            return res.json(newService);
+          }
+        }
+        errors.access = "Access denied";
+        res.status(403).json(errors);
       })
       .catch(err => res.json(err));
   }
@@ -171,6 +247,7 @@ router.get(
     const errors = {};
     Organization.findOne({ urlName: req.params.org_urlname })
       .then(organization => {
+        // Check for valid organization url name
         if (!organization) {
           errors.organization = "Organization not found";
           return res.status(404).json(errors);
@@ -187,6 +264,227 @@ router.get(
         }
         errors.access = "Access denied";
         res.status(403).json(errors);
+      })
+      .catch(err => res.status(400).json(err));
+  }
+);
+
+//@route POST api/organizations/:org_urlname/products/:prod_id/edit
+//@desc  Edit product
+//@acces Private
+router.post(
+  "/:org_urlname/products/:prod_id/edit",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    Organization.findOne({ urlName: req.params.org_urlname }).then(
+      organization => {
+        // Check for valid organization url name
+        if (!organization) {
+          errors.organization = "Organization not found";
+          return res.status(404).json(errors);
+        }
+
+        // Check for valid product id
+        Product.count({ _id: req.params.prod_id }, (err, count) => {
+          if (count > 0) {
+            // Check for valid user
+            for (let member of organization.members) {
+              if (
+                member.user.toString() === req.user.id &&
+                member.permissions === "admin"
+              ) {
+                // Edit
+                let { errors, isValid } = validateCreateProductOrServiceInput(
+                  req.body
+                );
+                if (!isValid) {
+                  return res.status(400).json(errors);
+                }
+
+                newProductParams = {};
+                if (req.body.name) newProductParams.name = req.body.name;
+                if (req.body.image) newProductParams.image = req.body.image;
+                if (req.body.price) newProductParams.price = req.body.price;
+                if (req.body.description)
+                  newProductParams.description = req.body.description;
+
+                Product.findByIdAndUpdate(
+                  req.params.prod_id,
+                  { $set: newProductParams },
+                  { new: true }
+                ).catch(err => res.status(400).json(err));
+                return res.json(newProductParams);
+              }
+            }
+            errors.access = "Access denied";
+            res.status(403).json(errors);
+          } else {
+            errors.product = "Product not found";
+            return res.status(404).json(errors);
+          }
+        });
+      }
+    );
+  }
+);
+
+//@route POST api/organizations/:org_urlname/services/:serv_id/edit
+//@desc  Edit service
+//@acces Private
+router.post(
+  "/:org_urlname/services/:serv_id/edit",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    Organization.findOne({ urlName: req.params.org_urlname })
+      .then(organization => {
+        // Check for valid organization url name
+        if (!organization) {
+          errors.organization = "Organization not found";
+          return res.status(404).json(errors);
+        }
+        // Check for valid service id
+        Service.count({ _id: req.params.serv_id }, (err, count) => {
+          if (count > 0) {
+            // Check for valid user
+            for (let member of organization.members) {
+              if (
+                member.user.toString() === req.user.id &&
+                member.permissions === "admin"
+              ) {
+                // Edit
+                let { errors, isValid } = validateCreateProductOrServiceInput(
+                  req.body
+                );
+                if (!isValid) {
+                  return res.status(400).json(errors);
+                }
+
+                newServiceParams = {};
+                if (req.body.name) newServiceParams.name = req.body.name;
+                if (req.body.image) newServiceParams.image = req.body.image;
+                if (req.body.price) newServiceParams.price = req.body.price;
+                if (req.body.description)
+                  newServiceParams.description = req.body.description;
+
+                Service.findByIdAndUpdate(
+                  req.params.serv_id,
+                  { $set: newServiceParams },
+                  { new: true }
+                ).catch(err => res.status(400).json(err));
+                return res.json(newServiceParams);
+              }
+            }
+            errors.access = "Access denied";
+            res.status(403).json(errors);
+          } else {
+            errors.service = "Service not found";
+            return res.status(404).json(errors);
+          }
+        });
+      })
+      .catch(err => res.status(400).json(err));
+  }
+);
+
+//@route DELETE api/organizations/:org_urlname/services/:serv_id/delete
+//@desc  Delete service
+//@acces Private
+router.delete(
+  "/:org_urlname/services/:serv_id/delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    Organization.findOne({ urlName: req.params.org_urlname })
+      .then(organization => {
+        // Check for valid organization url name
+        if (!organization) {
+          errors.organization = "Organization not found";
+          return res.status(404).json(errors);
+        }
+        // Check for valid service id
+        Service.countDocuments({ _id: req.params.serv_id }, (err, count) => {
+          if (count > 0) {
+            // Check for valid user
+            for (let member of organization.members) {
+              if (
+                member.user.toString() === req.user.id &&
+                member.permissions === "admin"
+              ) {
+                // Remove service id from organizstion list
+                const removeIndex = organization.servicesList
+                  .map(item => item.id)
+                  .indexOf(req.params.serv_id);
+
+                organization.servicesList.splice(removeIndex, 1);
+                organization.save();
+
+                // Delete actual object
+                Service.findByIdAndDelete(req.params.serv_id).catch(err =>
+                  res.status(400).json(err)
+                );
+                return res.json({ msg: "Service successfully deleted" });
+              }
+            }
+            errors.access = "Access denied";
+            res.status(403).json(errors);
+          } else {
+            errors.service = "Service not found";
+            return res.status(404).json(errors);
+          }
+        });
+      })
+      .catch(err => res.status(400).json(err));
+  }
+);
+
+//@route DELETE api/organizations/:org_urlname/products/:prod_id/delete
+//@desc  Delete product
+//@acces Private
+router.delete(
+  "/:org_urlname/products/:prod_id/delete",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    Organization.findOne({ urlName: req.params.org_urlname })
+      .then(organization => {
+        // Check for valid organization url name
+        if (!organization) {
+          errors.organization = "Organization not found";
+          return res.status(404).json(errors);
+        }
+        // Check for valid product id
+        Product.countDocuments({ _id: req.params.prod_id }, (err, count) => {
+          if (count > 0) {
+            // Check for valid user
+            for (let member of organization.members) {
+              if (
+                member.user.toString() === req.user.id &&
+                member.permissions === "admin"
+              ) {
+                // Remove product id from organizstion list
+                const removeIndex = organization.productsList
+                  .map(item => item.id)
+                  .indexOf(req.params.prod_id);
+
+                organization.productsList.splice(removeIndex, 1);
+                organization.save();
+
+                // Delete actual object
+                Product.findByIdAndDelete(req.params.prod_id).catch(err =>
+                  res.status(400).json(err)
+                );
+                return res.json({ msg: "Product successfully deleted" });
+              }
+            }
+            errors.access = "Access denied";
+            res.status(403).json(errors);
+          } else {
+            errors.product = "Product not found";
+            return res.status(404).json(errors);
+          }
+        });
       })
       .catch(err => res.status(400).json(err));
   }

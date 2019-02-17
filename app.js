@@ -7,12 +7,10 @@ const passport = require("passport");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 
-const indexRouter = require("./routes/index");
-const categoryRouter = require("./routes/category");
-const goodsRouter = require("./routes/goods");
-const searchTilesRouter = require("./routes/serchTiles");
 const accountsRouter = require("./routes/api/accounts");
 const organizationsRouter = require("./routes/api/organizations");
+const productsRouter = require('./routes/api/products');
+const serviceRouter = require('./routes/api/services');
 
 const app = express();
 
@@ -45,12 +43,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/main", indexRouter);
-app.use("/category", categoryRouter);
-app.use("/goods", goodsRouter);
-app.use("/search_tiles", searchTilesRouter);
+// routes 
 app.use("/api/accounts", accountsRouter);
 app.use("/api/organizations", organizationsRouter);
+app.use("/api/products", productsRouter);
+app.use("/api/services", serviceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

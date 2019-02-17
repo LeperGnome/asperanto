@@ -18,14 +18,6 @@ const ServiceSchema = new Schema({
     type: String,
     required: true
   },
-  numOfRates: {
-    type: Number,
-    default: 0
-  },
-  rating: {
-    type: Number,
-    default: 0
-  },
   addDate: {
     type: Date,
     default: Date.now()

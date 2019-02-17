@@ -17,9 +17,8 @@ const OrganizationSchema = new Schema({
     required: true
   },
   // aperanto-type : [  ]
-  type: {
-    type: [String],
-    required: true
+  asperantoType: {
+    type: [String]
   },
   // ПАО, ООО, МИБ ...
   businessType: {

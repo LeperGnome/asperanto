@@ -29,6 +29,7 @@ const asperantoTypes = [
   "Производитель",
   "Разработчик",
   "Логистическая компания",
+  "Поставщик услуг",
   "Инвестор"
 ];
 
@@ -41,7 +42,7 @@ module.exports = function validateRegisterInput(data) {
     ? data.countryOfIncorporation
     : "";
   data.industries = !isEmpty(data.industries) ? data.industries : "";
-  data.type = !isEmpty(data.type) ? data.type : "";
+  data.asperantoTypes = !isEmpty(data.asperantoTypes) ? data.asperantoTypes : "";
 
   if (Validator.isEmpty(data.name)) {
     errors.name = "Name field is reqired";
@@ -61,12 +62,12 @@ module.exports = function validateRegisterInput(data) {
       }
     }
   }
-  if (Validator.isEmpty(data.type)) {
-    errors.type = "Type field is reqired";
+  if (Validator.isEmpty(data.asperantoTypes)) {
+    errors.asperantoTypes = "Type field is reqired";
   } else {
-    for (let type of data.type.split(",")) {
-      if (!asperantoTypes.includes(type)) {
-        errors.type = "Unknown type";
+    for (let asperantoType of data.asperantoTypes.split(",")) {
+      if (!asperantoType.includes(asperantoTypes)) {
+        errors.asperantoTypes = "Unknown asperanto types";
       }
     }
   }
