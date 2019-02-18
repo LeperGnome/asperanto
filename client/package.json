@@ -1,0 +1,46 @@
+{
+  "name": "asperanto",
+  "version": "1.0.0",
+  "description": "marketplace",
+  "main": "src/base.js",
+  "dependencies": {
+    "express": "^4.16.4",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5",
+    "css-loader": "^2.1.0",
+    "file-loader": "^3.0.1",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.5.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^2.1.1",
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-middleware": "^3.5.2",
+    "webpack-hot-middleware": "^2.24.3",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "scripts": {
+    "test": "test",
+    "start": "node ./dist/server.js",
+    "build-dev": "rm -r ./dist && webpack --mode development --config webpack.server.config.js && webpack --mode development --config webpack.dev.config.js",
+    "build-prod": "rm -r ./dist  && webpack --mode production --config webpack.server.config.js && webpack --mode production --config webpack.prod.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://goh_ser@bitbucket.org/asperanto/asperanto_front.git"
+  },
+  "author": "Sergey Postnov",
+  "license": "ISC",
+  "homepage": "asperanto.ru"
+}

@@ -1,0 +1,81 @@
+.main-categories {
+    display: grid;
+    grid-template-rows: [start] calc(100vh - 155px) 65px 2fr [end];
+    grid-template-areas: "category" "navbar" "products";
+    width: calc(100vw - 400px);
+    justify-self: center;
+}
+
+.category {
+    grid-area: category;
+    background-image: url("../../../public/img/oil_gas.jpg") !important;
+    background-size: cover;
+    background-attachment: scroll;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: block;
+    position: sticky;
+    top: 90px;
+    z-index: 0;
+}
+
+.wrap-category {
+    background-color: rgba(0,0,0,0);
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 200px 1fr;
+    grid-template-areas:
+        ". h1"
+        ". .";
+    height: 100%;
+}
+
+@media (max-width: 1024px) {
+    .wrap-category {
+        grid-template-columns: 100px 1fr;
+    }
+}
+
+.category > .wrap-category > h1 {
+    font-weight: bold;
+    color: white;
+    grid-area: h1;
+    align-self: end;
+    width: 15%;
+}
+
+.navbar-products {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 65px;
+    background-color: #333;
+    grid-area: navbar;
+    box-shadow: 0 5px 5px #bbb;
+    z-index: 3;
+}
+
+.link {
+    font-size: 1.3rem;
+    line-height: 1.6rem;
+    padding: 1rem 2rem 1rem 2rem;
+    color: white !important;
+}
+
+@media (max-width: 1024px) {
+    .link {
+        padding: 20px 20px 20px 20px;
+    }
+}
+
+.category-products {
+    display: block;
+    position: sticky;
+    width: 100%;
+    overflow: auto;
+    z-index: 1;
+    top: 45px;
+    grid-area: products;
+    background-color: white;
+}

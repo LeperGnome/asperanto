@@ -8,7 +8,8 @@ const OrganizationSchema = new Schema({
     required: true
   },
   urlName: {
-    type: String
+    type: String,
+    required: true
     //, default : ???
   },
   // Отрасли в которых задействована компания

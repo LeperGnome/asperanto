@@ -1,0 +1,13 @@
+footer {
+    grid-area: footer;
+    background-color: #333;
+    border-top: 1px solid #c5c5c5;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+.footer-logo {
+    font-weight: bold;
+    color: white;
+}

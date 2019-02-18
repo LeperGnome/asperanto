@@ -1,0 +1,6 @@
+.sidebar {
+    display: grid;
+    grid-area: sidebar;
+    height: 100%;
+    background-color: #fafafa;
+}

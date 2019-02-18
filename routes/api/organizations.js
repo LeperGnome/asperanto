@@ -30,8 +30,8 @@ router.post(
 
     newOrganization = new Organization({
       name: req.body.name,
+      urlName: req.body.urlName,
       industries: req.body.industries.split(","),
-      asperantoType: req.body.asperantoType.split(","),
       businessType: req.body.businessType,
       countryOfIncorporation: req.body.countryOfIncorporation
     });

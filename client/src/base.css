@@ -1,0 +1,90 @@
+html { /* Использование шрифта, обозначение основного цвета заднего фона*/
+    background-color: white;
+    font-family: 'IBM Plex Sans', sans-serif;
+    z-index: 0;
+    margin: 0;
+    min-height: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    font-family: 'IBM Plex Sans', sans-serif;
+    z-index: 0;
+    overflow: auto;
+}
+
+#root {
+    height: 100%;
+}
+
+.wrapper-sidebar-toggled {
+    height: 100%;
+    display: grid;
+    grid-template-rows: [header] 90px [body] 1fr [footer] 42px [end];
+    grid-template-columns: 250px 1fr;
+    grid-template-areas:
+            "header header"
+            "sidebar main"
+            "footer footer";
+}
+
+.wrapper {
+    height: 100%;
+    display: grid;
+    grid-template-rows: [navbar-start] 90px [navbar-end body-start] 1fr [body-end footer-start] 42px [footer-end];
+    grid-template-columns: 100%;
+    grid-template-areas:
+            "header"
+            "main"
+            "footer";
+    transition-property: all;
+    transition-duration: 1s;
+}
+
+/* Правила переписывают поведение тегов  под нейтральное */
+
+button,
+a,
+button:hover,
+a:hover {
+    color: #343a40;
+    text-decoration: none !important;
+    display: flex;
+    cursor: pointer;
+}
+
+button:focus,
+a:focus,
+button:active,
+a:active,
+input:focus,
+input:active {
+    outline: none;
+}
+
+h1, h2, h3, h4, h5, h6, a {
+    padding: 0;
+    margin: 0;
+    color: #343a40
+}
+
+input {
+    padding: 0;
+    margin: 0;
+}
+
+p {
+    margin-bottom: 0;
+}
+
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}

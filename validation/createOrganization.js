@@ -42,10 +42,16 @@ module.exports = function validateRegisterInput(data) {
     ? data.countryOfIncorporation
     : "";
   data.industries = !isEmpty(data.industries) ? data.industries : "";
-  data.asperantoTypes = !isEmpty(data.asperantoTypes) ? data.asperantoTypes : "";
+  data.asperantoTypes = !isEmpty(data.asperantoTypes)
+    ? data.asperantoTypes
+    : "";
+  data.urlName = !isEmpty(data.urlName) ? data.urlName : "";
 
   if (Validator.isEmpty(data.name)) {
     errors.name = "Name field is reqired";
+  }
+  if (Validator.isEmpty(data.urlName)) {
+    errors.urlName = "Url name field is reqired";
   }
   if (Validator.isEmpty(data.businessType)) {
     errors.businessType = "Business type field is reqired";

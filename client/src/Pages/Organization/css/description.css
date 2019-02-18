@@ -1,0 +1,33 @@
+.main-description {
+    display: grid;
+    grid-template-areas:
+        "pic name"
+        "pic desc"
+        ". desc";
+    grid-template-rows: [start-pic start-name] 40px [end-name start-desc] 200px [end-pic] 1fr [end-desc];
+    grid-template-columns: [start-pic] 240px [end-pic start-desc-name] 1fr [end-pic end-desc-name];
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid #c5c5c5;
+    grid-column-gap: 20px;
+}
+
+.name-description {
+    font-size: 36px;
+    font-weight: bold;
+    grid-area: name;
+}
+
+.pic-organization {
+    grid-area: pic;
+    background-image: url("../../../../public/img/oil_gas.jpg");
+    background-size: cover;
+    background-attachment: scroll;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.desc-organization {
+    margin-top: 20px;
+    grid-area: desc;
+}
