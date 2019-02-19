@@ -1,9 +1,0 @@
-.main-home {
-    display: block;
-    margin-top: 20px;
-}
-
-.main-home > a {
-    display: flex;
-    justify-content: center;
-}

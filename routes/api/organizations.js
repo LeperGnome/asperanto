@@ -7,6 +7,7 @@ const router = express.Router();
 const Organization = require("../../models/Organization");
 const Product = require("../../models/Product");
 const Service = require("../../models/Service");
+const Profile = require("../../models/Profile");
 
 // Import create organization input valdation
 const validateCreateOrganizationInput = require("../../validation/createOrganization");
@@ -42,10 +43,26 @@ router.post(
       permissions: "admin"
     });
 
+    // Saving organization
     newOrganization
       .save()
       .then(organization => res.json(organization))
       .catch(err => res.status(400).json(err));
+
+    // Adding organization to profile
+    Profile.findOne({ user: req.user.id }).then(profile => {
+      if (!profile) {
+        errors.profile = "Profile not found";
+        return res.status(404).json(errors);
+      }
+
+      profile.organizations.unshift({
+        comid: newOrganization._id,
+        position: "admin",
+        current: true
+      });
+      profile.save().catch(err => res.status(400).json(err));
+    });
   }
 );
 

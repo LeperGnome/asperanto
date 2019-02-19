@@ -9,11 +9,11 @@ const ProfileSchema = new Schema({
     ref: "users"
   },
   // List of companies related to user
-  companies: [
+  organizations: [
     {
       comId: {
         type: Schema.Types.ObjectId,
-        ref: "companies"
+        ref: "organizations"
       },
       position: {
         type: String,
@@ -24,7 +24,7 @@ const ProfileSchema = new Schema({
       },
       from: {
         type: Date,
-        required: true
+        default: Date.now()
       },
       to: {
         type: Date

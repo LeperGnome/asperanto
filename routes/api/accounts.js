@@ -136,14 +136,17 @@ router.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    let loggedUser = req.user;
-    res.json({
-      id: loggedUser.id,
-      email: loggedUser.email,
-      avatar: loggedUser.avatar,
-      firstName: loggedUser.firstName,
-      lastName: loggedUser.LastName
-    });
+    const errors = {};
+    const loggedUser = req.user;
+    Profile.findOne({ user: loggedUser.id })
+      .then(profile => {
+        if (!profile) {
+          errors.profile = "Profile not found";
+          return res.status(404).json(errors);
+        }
+        res.json(profile);
+      })
+      .catch(err => res.status(400).json(err));
   }
 );
 
@@ -202,7 +205,7 @@ router.get("/:nickname", (req, res) => {
   User.findOne({ nickname: req.params.nickname })
     .then(user => {
       if (!user) {
-        errors.nouser = "No user found";
+        errors.nouser = "User not found";
         return res.status(404).json(errors);
       }
       Profile.findOne({ user: user.id })
@@ -215,7 +218,7 @@ router.get("/:nickname", (req, res) => {
         ])
         .then(profile => {
           if (!profile) {
-            errors.nouser = "No user found";
+            errors.nouser = "User not found";
             return res.status(404).json(errors);
           }
           res.json(profile);

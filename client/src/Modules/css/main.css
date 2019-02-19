@@ -1,9 +1,0 @@
-.main { /* Правило для правой части страницы */
-    display: grid;
-    position: relative;
-    padding-right: 0;
-    padding-left: 0;
-    width: 100%;
-    grid-area: main;
-    box-sizing: inherit;
-}

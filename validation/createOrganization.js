@@ -68,9 +68,7 @@ module.exports = function validateRegisterInput(data) {
       }
     }
   }
-  if (Validator.isEmpty(data.asperantoTypes)) {
-    errors.asperantoTypes = "Type field is reqired";
-  } else {
+  if (!Validator.isEmpty(data.asperantoTypes)) {
     for (let asperantoType of data.asperantoTypes.split(",")) {
       if (!asperantoType.includes(asperantoTypes)) {
         errors.asperantoTypes = "Unknown asperanto types";
