@@ -14,6 +14,15 @@ const serviceRouter = require('./routes/api/services');
 
 const app = express();
 
+//CORS Configuration
+const cors = require('cors');
+// app.use(cors());
+
+const corsOptions = {
+  origin: ['http://localhost:8000', 'http://localhost:8080', 'http://asperanto.com', 'http://asperanto.ru'],
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
 // Body parser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -21,7 +30,7 @@ app.use(bodyParser.json());
 // DB config
 const db = require("./config/keys").mongoURI;
 
-// Conect to mongodb
+// Connect to mongodb
 mongoose
   .connect(db, { useNewUrlParser: true })
   .then(() => console.log("MongoDB connected."))
@@ -44,10 +53,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // routes 
-app.use("/api/accounts", accountsRouter);
-app.use("/api/organizations", organizationsRouter);
-app.use("/api/products", productsRouter);
-app.use("/api/services", serviceRouter);
+app.use("/api/accounts", cors(corsOptions), accountsRouter);
+app.use("/api/organizations", cors(corsOptions), organizationsRouter);
+app.use("/api/products", cors(corsOptions), productsRouter);
+app.use("/api/services", cors(corsOptions), serviceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
