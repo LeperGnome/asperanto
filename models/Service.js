@@ -18,6 +18,10 @@ const ServiceSchema = new Schema({
     type: String,
     required: true
   },
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "organizations"
+  },
   addDate: {
     type: Date,
     default: Date.now()

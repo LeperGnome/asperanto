@@ -128,6 +128,7 @@ router.post(
             productFields.name = req.body.name;
             productFields.price = req.body.price;
             productFields.description = req.body.description;
+            productFields.organization = organization._id;
             if (req.body.image) productFields.image = req.body.image;
 
             // Create product obj
@@ -196,6 +197,7 @@ router.post(
             serviceFields.name = req.body.name;
             serviceFields.price = req.body.price;
             serviceFields.description = req.body.description;
+            serviceFields.organization = organization._id;
             if (req.body.image) serviceFields.image = req.body.image;
 
             // Create product obj

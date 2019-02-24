@@ -9,7 +9,7 @@ const Product = require("../../models/Product");
 
 //@route GET api/products
 //@desc  Get all products
-//@acces Private
+//@acces Public
 router.get("/", (req, res) => {
   errors = {};
   Product.find(
@@ -30,8 +30,6 @@ router.get("/", (req, res) => {
     })
     .catch(err => res.status(400).json(err));
 });
-
-// NOT TESTED
 
 //@route GET api/products/:prod_id
 //@desc  Get info about product
