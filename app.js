@@ -9,17 +9,25 @@ const bodyParser = require("body-parser");
 
 const accountsRouter = require("./routes/api/accounts");
 const organizationsRouter = require("./routes/api/organizations");
-const productsRouter = require('./routes/api/products');
-const serviceRouter = require('./routes/api/services');
+const productsRouter = require("./routes/api/products");
+const serviceRouter = require("./routes/api/services");
 
 const app = express();
 
+// Pretty JSON
+app.set("json spaces", 2);
+
 //CORS Configuration
-const cors = require('cors');
+const cors = require("cors");
 // app.use(cors());
 
 const corsOptions = {
-  origin: ['http://localhost:8000', 'http://localhost:8080', 'http://asperanto.com', 'http://asperanto.ru'],
+  origin: [
+    "http://localhost:8000",
+    "http://localhost:8080",
+    "http://asperanto.com",
+    "http://asperanto.ru"
+  ],
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
@@ -52,7 +60,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// routes 
+// routes
 app.use("/api/accounts", cors(corsOptions), accountsRouter);
 app.use("/api/organizations", cors(corsOptions), organizationsRouter);
 app.use("/api/products", cors(corsOptions), productsRouter);
