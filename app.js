@@ -18,28 +18,6 @@ const app = express();
 // Pretty JSON
 app.set("json spaces", 2);
 
-//CORS Configuration
-
-// Set up a whitelist and check against it:
-const whitelist = [
-  "http://localhost:8080",
-  "http://asperanto.com",
-  "http://localhost:8000",
-  "http://localhost:8003",
-  "*"
-];
-
-const corsOptions = {
-  origin: function(origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
-};
-app.use(cors(corsOptions));
-
 // Add headers
 app.use(function(req, res, next) {
   // Website you wish to allow to connect
