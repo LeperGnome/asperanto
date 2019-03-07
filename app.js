@@ -25,7 +25,8 @@ const whitelist = [
   "http://localhost:8080",
   "http://asperanto.com",
   "http://localhost:8000",
-  "http://localhost:8003"
+  "http://localhost:8003",
+  "*"
 ];
 
 const corsOptions = {
@@ -42,7 +43,7 @@ app.use(cors(corsOptions));
 // Add headers
 app.use(function(req, res, next) {
   // Website you wish to allow to connect
-  res.setHeader("Access-Control-Allow-Origin", whitelist);
+  res.setHeader("Access-Control-Allow-Origin", ["*"]);
   // Request methods you wish to allow
   res.setHeader(
     "Access-Control-Allow-Methods",
