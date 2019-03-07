@@ -70,10 +70,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // routes
-app.use("/api/accounts", cors(corsOptions), accountsRouter);
-app.use("/api/organizations", cors(corsOptions), organizationsRouter);
-app.use("/api/products", cors(corsOptions), productsRouter);
-app.use("/api/services", cors(corsOptions), serviceRouter);
+app.use("/api/accounts", accountsRouter);
+app.use("/api/organizations", organizationsRouter);
+app.use("/api/products", productsRouter);
+app.use("/api/services", serviceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
