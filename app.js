@@ -26,7 +26,8 @@ const whitelist = [
   "http://asperanto.com",
   "http://localhost:8000",
   "http://localhost:8003",
-  "http://asperanto.ru"
+  "http://asperanto.ru",
+  "*"
 ];
 
 const corsOptions = {
