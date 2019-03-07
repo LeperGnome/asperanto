@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const slug = require("slug");
 
 const router = express.Router();
 
@@ -28,6 +29,16 @@ router.post(
       //Return any errors
       return res.status(400).json(errors);
     }
+
+    // Create urlName with slug
+    const urlName = slug(req.body.name, { lower: true, replacement: "_" });
+    Organization.count({ urlName }, (err, count) => {
+      if (count > 0) {
+        //
+        // EDIT FILE createOrganizationUrlName.js
+        //
+      }
+    });
 
     newOrganization = new Organization({
       name: req.body.name,

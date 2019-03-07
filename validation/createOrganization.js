@@ -47,6 +47,10 @@ module.exports = function validateRegisterInput(data) {
     : "";
   data.urlName = !isEmpty(data.urlName) ? data.urlName : "";
 
+  if (!Validator.isLength(data.name, { min: 2, max: 256 })) {
+    errors.name = "Name must be between 2 and 256 characters";
+  }
+
   if (Validator.isEmpty(data.name)) {
     errors.name = "Name field is reqired";
   }

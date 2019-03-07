@@ -21,6 +21,7 @@ router.get("/", (req, res) => {
       description: true
     }
   )
+    .populate("organization", ["name", "_id"])
     .then(products => {
       if (!products) {
         errors.noproducts = "No products found";

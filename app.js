@@ -6,6 +6,7 @@ const logger = require("morgan");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const accountsRouter = require("./routes/api/accounts");
 const organizationsRouter = require("./routes/api/organizations");
@@ -18,18 +19,26 @@ const app = express();
 app.set("json spaces", 2);
 
 //CORS Configuration
-const cors = require("cors");
-// app.use(cors());
+
+// Set up a whitelist and check against it:
+const whitelist = [
+  "http://asperanto.com",
+  "http://asperanto.ru",
+  "http://localhost:8000",
+  "http://localhost:8080",
+  "http://localhost:8003"
+];
 
 const corsOptions = {
-  origin: [
-    "http://localhost:8000",
-    "http://localhost:8080",
-    "http://asperanto.com",
-    "http://asperanto.ru"
-  ],
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  origin: function(origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
 };
+app.use(cors(corsOptions));
 
 // Body parser
 app.use(bodyParser.urlencoded({ extended: false }));

@@ -12,21 +12,21 @@ module.exports = function validateRegisterInput(data) {
   data.password = !isEmpty(data.password) ? data.password : "";
   data.password2 = !isEmpty(data.password2) ? data.password2 : "";
 
-  if (!Validator.isLength(data.firstName, { min: 2, max: 30 })) {
-    // errors.firstName = "First name must be between 2 and 30 characters";
-    errors.firstName = "Имя должно содержать от 2ух до 30 символов";
+  if (!Validator.isLength(data.firstName, { min: 2, max: 50 })) {
+    // errors.firstName = "First name must be between 2 and 50 characters";
+    errors.firstName = "Имя должно содержать от 2ух до 50 символов";
   }
-  if (!Validator.isLength(data.lastName, { min: 2, max: 30 })) {
-    // errors.lastName = "Last name must be between 2 and 30 characters";
-    errors.lastName = "Фамилия должна содержать от 2ух до 30 символов";
+  if (!Validator.isLength(data.lastName, { min: 2, max: 50 })) {
+    // errors.lastName = "Last name must be between 2 and 50 characters";
+    errors.lastName = "Фамилия должна содержать от 2ух до 50 символов";
   }
-  if (!Validator.isLength(data.middleName, { min: 2, max: 30 })) {
-    // errors.middleName = "Middle name must be between 2 and 30 characters";
-    errors.middleName = "Отчество должно содержать от 2ух до 30 символов";
+  if (!Validator.isLength(data.middleName, { min: 2, max: 50 })) {
+    // errors.middleName = "Middle name must be between 2 and 50 characters";
+    errors.middleName = "Отчество должно содержать от 2ух до 50 символов";
   }
-  if (!Validator.isLength(data.nickname, { min: 2, max: 30 })) {
-    // errors.nickname = "Nickname must be between 2 and 30 characters";
-    errors.nickname = "Никнейм должен содержать от 2ух до 30 символов";
+  if (!Validator.isLength(data.nickname, { min: 2, max: 50 })) {
+    // errors.nickname = "Nickname must be between 2 and 50 characters";
+    errors.nickname = "Никнейм должен содержать от 2ух до 50 символов";
   }
 
   if (Validator.isEmpty(data.firstName)) {
