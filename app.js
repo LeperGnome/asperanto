@@ -21,7 +21,13 @@ app.set("json spaces", 2);
 //CORS Configuration
 
 // Set up a whitelist and check against it:
-const whitelist = ["http://asperanto.com"];
+const whitelist = [
+  "http://localhost:8080",
+  "http://asperanto.com",
+  "http://localhost:8000",
+  "http://localhost:8003",
+  "http://asperanto.ru"
+];
 
 const corsOptions = {
   origin: function(origin, callback) {
@@ -33,6 +39,27 @@ const corsOptions = {
   }
 };
 app.use(cors(corsOptions));
+
+// Add headers
+app.use(function(req, res, next) {
+  // Website you wish to allow to connect
+  res.setHeader("Access-Control-Allow-Origin", whitelist);
+  // Request methods you wish to allow
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  );
+  // Request headers you wish to allow
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type"
+  );
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  // Pass to next layer of middleware
+  next();
+});
 
 // Body parser
 app.use(bodyParser.urlencoded({ extended: false }));
