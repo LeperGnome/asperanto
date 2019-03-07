@@ -21,13 +21,7 @@ app.set("json spaces", 2);
 //CORS Configuration
 
 // Set up a whitelist and check against it:
-const whitelist = [
-  "http://asperanto.com",
-  "http://asperanto.ru",
-  "http://localhost:8000",
-  "http://localhost:8080",
-  "http://localhost:8003"
-];
+const whitelist = ["http://asperanto.com"];
 
 const corsOptions = {
   origin: function(origin, callback) {
