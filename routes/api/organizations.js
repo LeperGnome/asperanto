@@ -246,6 +246,8 @@ router.post(
 router.get("/:org_urlname", (req, res) => {
   const errors = {};
   Organization.findOne({ urlName: req.params.org_urlname })
+    .populate("productsList")
+    .populate("servicesList")
     .then(organization => {
       if (!organization) {
         errors.organization = "Organization not found";
@@ -276,6 +278,8 @@ router.get(
   (req, res) => {
     const errors = {};
     Organization.findOne({ urlName: req.params.org_urlname })
+      .populate("productsList")
+      .populate("servicesList")
       .then(organization => {
         // Check for valid organization url name
         if (!organization) {
