@@ -17,7 +17,6 @@ const OrganizationSchema = new Schema({
     type: [String],
     required: true
   },
-  // aperanto-type : [  ]
   asperantoType: {
     type: [String]
   },

@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const slug = require("slug");
+const axios = require("axios");
 
 const router = express.Router();
 
@@ -61,19 +62,39 @@ router.post(
       .catch(err => res.status(400).json(err));
 
     // Adding organization to profile
-    Profile.findOne({ user: req.user.id }).then(profile => {
-      if (!profile) {
-        errors.profile = "Profile not found";
-        return res.status(404).json(errors);
-      }
+    Profile.findOne({ user: req.user.id })
+      .populate("user", ["email"])
+      .then(profile => {
+        if (!profile) {
+          errors.profile = "Profile not found";
+          return res.status(404).json(errors);
+        }
 
-      profile.organizations.unshift({
-        comid: newOrganization._id,
-        position: "admin",
-        current: true
+        profile.organizations.unshift({
+          comid: newOrganization._id,
+          position: "admin",
+          current: true
+        });
+        profile.save().catch(err => res.status(400).json(err));
+
+        // POST new organization to Hyperledger server
+        /*
+        const manufacturerFields = {
+          email: profile.user.email,
+          accountBalance: 228,
+          address: {
+            city: "Moscow",
+            country: "Russia",
+            street: "Pushkina",
+            zip: "123321"
+          }
+        };
+        axios
+          .post("http://87.236.23.98:3000/api/Manufacturer", manufacturerFields)
+          .then(res => console.log(res))
+          .catch(err => console.log(err.data));
+        */
       });
-      profile.save().catch(err => res.status(400).json(err));
-    });
   }
 );
 
@@ -87,7 +108,7 @@ router.get("/all", (req, res) => {
     {
       name: true,
       industries: true,
-      type: true,
+      asperantoType: true,
       countryOfIncorporation: true,
       registeredFrom: true
     }
@@ -140,6 +161,7 @@ router.post(
             productFields.price = req.body.price;
             productFields.description = req.body.description;
             productFields.organization = organization._id;
+            if (req.body.tags) productFields.tags = req.body.tags.split(",");
             if (req.body.image) productFields.image = req.body.image;
 
             // Create product obj
@@ -209,6 +231,7 @@ router.post(
             serviceFields.price = req.body.price;
             serviceFields.description = req.body.description;
             serviceFields.organization = organization._id;
+            if (req.body.tags) serviceFields.tags = req.body.tags.split(",");
             if (req.body.image) serviceFields.image = req.body.image;
 
             // Create product obj
@@ -340,6 +363,7 @@ router.post(
                 if (req.body.name) newProductParams.name = req.body.name;
                 if (req.body.image) newProductParams.image = req.body.image;
                 if (req.body.price) newProductParams.price = req.body.price;
+                if (req.body.tags) newProductParams.tags = req.body.tags;
                 if (req.body.description)
                   newProductParams.description = req.body.description;
 
@@ -399,6 +423,7 @@ router.post(
                 if (req.body.name) newServiceParams.name = req.body.name;
                 if (req.body.image) newServiceParams.image = req.body.image;
                 if (req.body.price) newServiceParams.price = req.body.price;
+                if (req.body.tags) newServiceParams.tags = req.body.tags;
                 if (req.body.description)
                   newServiceParams.description = req.body.description;
 

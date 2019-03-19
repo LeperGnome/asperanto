@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
 const passport = require("passport");
+const axios = require("axios");
 
 const router = express.Router();
 
@@ -68,6 +69,15 @@ router.post("/register", (req, res) => {
               // Creating profile for user
               newProfile = new Profile({ user });
               newProfile.save().catch(err => console.log(err));
+
+              // POST to Hyperledger server
+              axios
+                .post("http://87.236.23.98:3000/api/Users", {
+                  userId: user._id
+                })
+                .then(res => console.log(res.status))
+                .catch(err => console.log(err));
+
               res.json(user);
             })
             .catch(err => console.log(err));

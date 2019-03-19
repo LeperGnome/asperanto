@@ -23,6 +23,13 @@ const ProductSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "organizations"
   },
+  potencial: {
+    type: Boolean,
+    default: false
+  },
+  tags: {
+    type: [String]
+  },
   addDate: {
     type: Date,
     default: Date.now()
