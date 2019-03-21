@@ -24,7 +24,7 @@ const ServiceSchema = new Schema({
   },
   potencial: {
     type: Boolean,
-    default: False
+    default: false
   },
   tags: {
     type: [String]

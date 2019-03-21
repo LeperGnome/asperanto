@@ -1,6 +1,16 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+// List of status possible values
+// просто для справки
+statusList = [
+  "В рассмотрении",
+  "В процессе производства",
+  "Ожидает на складе",
+  "В пути",
+  "Доставлено"
+];
+
 // Create trade request schema
 const TradeRequestSchema = new Schema({
   // seller
@@ -26,7 +36,7 @@ const TradeRequestSchema = new Schema({
     required: true
   },
   dateOfManufacture: {
-    type: Date,
+    type: String,
     required: true
   },
   dateOpen: {
@@ -36,9 +46,9 @@ const TradeRequestSchema = new Schema({
   dateClosed: {
     type: Date
   },
-  active: {
-    type: Boolean,
-    default: true
+  status: {
+    type: String,
+    default: "CREATED"
   }
 });
 

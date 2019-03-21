@@ -26,11 +26,10 @@ const industriesList = [
 ];
 
 const asperantoTypes = [
-  "Производитель",
-  "Разработчик",
-  "Логистическая компания",
-  "Поставщик услуг",
-  "Инвестор"
+  "MANUFACTURER",
+  "CUSTOMER",
+  "LOGISTICIAN",
+  "SERVICEMAN"
 ];
 
 module.exports = function validateRegisterInput(data) {

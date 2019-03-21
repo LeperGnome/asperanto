@@ -78,22 +78,16 @@ router.post(
         profile.save().catch(err => res.status(400).json(err));
 
         // POST new organization to Hyperledger server
-        /*
-        const manufacturerFields = {
-          email: profile.user.email,
-          accountBalance: 228,
-          address: {
-            city: "Moscow",
-            country: "Russia",
-            street: "Pushkina",
-            zip: "123321"
-          }
+
+        const organizationFields = {
+          organizationId: newOrganization._id,
+          asperantoType: "CUSTOMER",
+          accountBalance: 1000
         };
         axios
-          .post("http://87.236.23.98:3000/api/Manufacturer", manufacturerFields)
-          .then(res => console.log(res))
+          .post("http://87.236.23.98:3000/api/Organization", organizationFields)
+          .then(res => console.log(res.data))
           .catch(err => console.log(err.data));
-        */
       });
   }
 );
@@ -138,56 +132,49 @@ router.post(
           errors.organization = "Organization not found";
           return res.status(404).json(errors);
         }
-        // Check for valid user
-        for (let member of organization.members) {
-          if (
-            member.user.toString() === req.user.id &&
-            member.permissions === "admin"
-          ) {
-            // If user is valid member of company with permissions
+        // check user permissions
+        const { permErrors, isPermitted } = checkUserPermissions(
+          req.user.id,
+          organization
+        );
+        if (!isPermitted) return res.status(403).json(permErrors);
 
-            // Product creation
-            let { errors, isValid } = validateCreateProductOrServiceInput(
-              req.body
-            );
-            // Check input validation
-            if (!isValid) {
-              return res.status(400).json(errors);
+        // Product creation
+        let { errors, isValid } = validateCreateProductOrServiceInput(req.body);
+        // Check input validation
+        if (!isValid) {
+          return res.status(400).json(errors);
+        }
+
+        const productFields = {};
+
+        productFields.name = req.body.name;
+        productFields.price = req.body.price;
+        productFields.description = req.body.description;
+        productFields.organization = organization._id;
+        if (req.body.tags) productFields.tags = req.body.tags.split(",");
+        if (req.body.image) productFields.image = req.body.image;
+
+        // Create product obj
+        newProduct = new Product(productFields);
+
+        // Save
+        newProduct
+          .save()
+          .then(product => {
+            // Add product to organization list
+            addAsperantoType = "Производитель";
+            organization.productsList.unshift(product);
+
+            // Add asperanto type if not exists
+            if (!organization.asperantoType.includes(addAsperantoType)) {
+              organization.asperantoType.unshift(addAsperantoType);
             }
 
-            const productFields = {};
-
-            productFields.name = req.body.name;
-            productFields.price = req.body.price;
-            productFields.description = req.body.description;
-            productFields.organization = organization._id;
-            if (req.body.tags) productFields.tags = req.body.tags.split(",");
-            if (req.body.image) productFields.image = req.body.image;
-
-            // Create product obj
-            newProduct = new Product(productFields);
-
-            // Save
-            newProduct
-              .save()
-              .then(product => {
-                // Add product to organization list
-                addAsperantoType = "Производитель";
-                organization.productsList.unshift(product);
-
-                // Add asperanto type if not exists
-                if (!organization.asperantoType.includes(addAsperantoType)) {
-                  organization.asperantoType.unshift(addAsperantoType);
-                }
-
-                organization.save().catch(err => res.status(400).json(err));
-              })
-              .catch(err => console.log(err));
-            return res.json(newProduct);
-          }
-        }
-        errors.access = "Access denied";
-        res.status(403).json(errors);
+            organization.save().catch(err => res.status(400).json(err));
+          })
+          .catch(err => console.log(err));
+        return res.json(newProduct);
       })
       .catch(err => res.json(err));
   }
@@ -208,56 +195,49 @@ router.post(
           errors.organization = "Organization not found";
           return res.status(404).json(errors);
         }
-        // Check for valid user
-        for (let member of organization.members) {
-          if (
-            member.user.toString() === req.user.id &&
-            member.permissions === "admin"
-          ) {
-            // If user is valid member of company with permissions
+        // check user permissions
+        const { permErrors, isPermitted } = checkUserPermissions(
+          req.user.id,
+          organization
+        );
+        if (!isPermitted) return res.status(403).json(permErrors);
 
-            // Service creation
-            let { errors, isValid } = validateCreateProductOrServiceInput(
-              req.body
-            );
-            // Check input validation
-            if (!isValid) {
-              return res.status(400).json(errors);
+        // Service creation
+        let { errors, isValid } = validateCreateProductOrServiceInput(req.body);
+        // Check input validation
+        if (!isValid) {
+          return res.status(400).json(errors);
+        }
+
+        const serviceFields = {};
+
+        serviceFields.name = req.body.name;
+        serviceFields.price = req.body.price;
+        serviceFields.description = req.body.description;
+        serviceFields.organization = organization._id;
+        if (req.body.tags) serviceFields.tags = req.body.tags.split(",");
+        if (req.body.image) serviceFields.image = req.body.image;
+
+        // Create product obj
+        newService = new Service(serviceFields);
+
+        // Save
+        newService
+          .save()
+          .then(service => {
+            // Add product to organization list
+            addAsperantoType = "Поставщик услуг";
+            organization.servicesList.unshift(service);
+
+            // Add asperanto type if not exists
+            if (!organization.asperantoType.includes(addAsperantoType)) {
+              organization.asperantoType.unshift(addAsperantoType);
             }
 
-            const serviceFields = {};
-
-            serviceFields.name = req.body.name;
-            serviceFields.price = req.body.price;
-            serviceFields.description = req.body.description;
-            serviceFields.organization = organization._id;
-            if (req.body.tags) serviceFields.tags = req.body.tags.split(",");
-            if (req.body.image) serviceFields.image = req.body.image;
-
-            // Create product obj
-            newService = new Service(serviceFields);
-
-            // Save
-            newService
-              .save()
-              .then(service => {
-                // Add product to organization list
-                addAsperantoType = "Поставщик услуг";
-                organization.servicesList.unshift(service);
-
-                // Add asperanto type if not exists
-                if (!organization.asperantoType.includes(addAsperantoType)) {
-                  organization.asperantoType.unshift(addAsperantoType);
-                }
-
-                organization.save().catch(err => res.status(400).json(err));
-              })
-              .catch(err => console.log(err));
-            return res.json(newService);
-          }
-        }
-        errors.access = "Access denied";
-        res.status(403).json(errors);
+            organization.save().catch(err => res.status(400).json(err));
+          })
+          .catch(err => console.log(err));
+        return res.json(newService);
       })
       .catch(err => res.json(err));
   }
@@ -309,18 +289,13 @@ router.get(
           errors.organization = "Organization not found";
           return res.status(404).json(errors);
         }
-
-        // Check for valid user
-        for (let member of organization.members) {
-          if (
-            member.user.toString() === req.user.id &&
-            member.permissions === "admin"
-          ) {
-            return res.json(organization);
-          }
-        }
-        errors.access = "Access denied";
-        res.status(403).json(errors);
+        // check user permissions
+        const { permErrors, isPermitted } = checkUserPermissions(
+          req.user.id,
+          organization
+        );
+        if (!isPermitted) return res.status(403).json(permErrors);
+        return res.json(organization);
       })
       .catch(err => res.status(400).json(err));
   }
@@ -341,42 +316,38 @@ router.post(
           errors.organization = "Organization not found";
           return res.status(404).json(errors);
         }
-
         // Check for valid product id
         Product.count({ _id: req.params.prod_id }, (err, count) => {
           if (count > 0) {
-            // Check for valid user
-            for (let member of organization.members) {
-              if (
-                member.user.toString() === req.user.id &&
-                member.permissions === "admin"
-              ) {
-                // Edit
-                let { errors, isValid } = validateCreateProductOrServiceInput(
-                  req.body
-                );
-                if (!isValid) {
-                  return res.status(400).json(errors);
-                }
+            // Check user permissions
+            const { permErrors, isPermitted } = checkUserPermissions(
+              req.user.id,
+              organization
+            );
+            if (!isPermitted) return res.status(403).json(permErrors);
 
-                newProductParams = {};
-                if (req.body.name) newProductParams.name = req.body.name;
-                if (req.body.image) newProductParams.image = req.body.image;
-                if (req.body.price) newProductParams.price = req.body.price;
-                if (req.body.tags) newProductParams.tags = req.body.tags;
-                if (req.body.description)
-                  newProductParams.description = req.body.description;
-
-                Product.findByIdAndUpdate(
-                  req.params.prod_id,
-                  { $set: newProductParams },
-                  { new: true }
-                ).catch(err => res.status(400).json(err));
-                return res.json(newProductParams);
-              }
+            // Edit
+            let { errors, isValid } = validateCreateProductOrServiceInput(
+              req.body
+            );
+            if (!isValid) {
+              return res.status(400).json(errors);
             }
-            errors.access = "Access denied";
-            res.status(403).json(errors);
+
+            newProductParams = {};
+            if (req.body.name) newProductParams.name = req.body.name;
+            if (req.body.image) newProductParams.image = req.body.image;
+            if (req.body.price) newProductParams.price = req.body.price;
+            if (req.body.tags) newProductParams.tags = req.body.tags;
+            if (req.body.description)
+              newProductParams.description = req.body.description;
+
+            Product.findByIdAndUpdate(
+              req.params.prod_id,
+              { $set: newProductParams },
+              { new: true }
+            ).catch(err => res.status(400).json(err));
+            return res.json(newProductParams);
           } else {
             errors.product = "Product not found";
             return res.status(404).json(errors);
@@ -405,38 +376,34 @@ router.post(
         // Check for valid service id
         Service.count({ _id: req.params.serv_id }, (err, count) => {
           if (count > 0) {
-            // Check for valid user
-            for (let member of organization.members) {
-              if (
-                member.user.toString() === req.user.id &&
-                member.permissions === "admin"
-              ) {
-                // Edit
-                let { errors, isValid } = validateCreateProductOrServiceInput(
-                  req.body
-                );
-                if (!isValid) {
-                  return res.status(400).json(errors);
-                }
-
-                newServiceParams = {};
-                if (req.body.name) newServiceParams.name = req.body.name;
-                if (req.body.image) newServiceParams.image = req.body.image;
-                if (req.body.price) newServiceParams.price = req.body.price;
-                if (req.body.tags) newServiceParams.tags = req.body.tags;
-                if (req.body.description)
-                  newServiceParams.description = req.body.description;
-
-                Service.findByIdAndUpdate(
-                  req.params.serv_id,
-                  { $set: newServiceParams },
-                  { new: true }
-                ).catch(err => res.status(400).json(err));
-                return res.json(newServiceParams);
-              }
+            // Check user permissions
+            const { permErrors, isPermitted } = checkUserPermissions(
+              req.user.id,
+              organization
+            );
+            if (!isPermitted) return res.status(403).json(permErrors);
+            // Edit
+            let { errors, isValid } = validateCreateProductOrServiceInput(
+              req.body
+            );
+            if (!isValid) {
+              return res.status(400).json(errors);
             }
-            errors.access = "Access denied";
-            res.status(403).json(errors);
+
+            newServiceParams = {};
+            if (req.body.name) newServiceParams.name = req.body.name;
+            if (req.body.image) newServiceParams.image = req.body.image;
+            if (req.body.price) newServiceParams.price = req.body.price;
+            if (req.body.tags) newServiceParams.tags = req.body.tags;
+            if (req.body.description)
+              newServiceParams.description = req.body.description;
+
+            Service.findByIdAndUpdate(
+              req.params.serv_id,
+              { $set: newServiceParams },
+              { new: true }
+            ).catch(err => res.status(400).json(err));
+            return res.json(newServiceParams);
           } else {
             errors.service = "Service not found";
             return res.status(404).json(errors);
@@ -465,29 +432,25 @@ router.delete(
         // Check for valid service id
         Service.countDocuments({ _id: req.params.serv_id }, (err, count) => {
           if (count > 0) {
-            // Check for valid user
-            for (let member of organization.members) {
-              if (
-                member.user.toString() === req.user.id &&
-                member.permissions === "admin"
-              ) {
-                // Remove service id from organizstion list
-                const removeIndex = organization.servicesList
-                  .map(item => item.id)
-                  .indexOf(req.params.serv_id);
+            // Check user permissions
+            const { permErrors, isPermitted } = checkUserPermissions(
+              req.user.id,
+              organization
+            );
+            if (!isPermitted) return res.status(403).json(permErrors);
+            // Remove service id from organizstion list
+            const removeIndex = organization.servicesList
+              .map(item => item.id)
+              .indexOf(req.params.serv_id);
 
-                organization.servicesList.splice(removeIndex, 1);
-                organization.save();
+            organization.servicesList.splice(removeIndex, 1);
+            organization.save();
 
-                // Delete actual object
-                Service.findByIdAndDelete(req.params.serv_id).catch(err =>
-                  res.status(400).json(err)
-                );
-                return res.json({ msg: "Service successfully deleted" });
-              }
-            }
-            errors.access = "Access denied";
-            res.status(403).json(errors);
+            // Delete actual object
+            Service.findByIdAndDelete(req.params.serv_id).catch(err =>
+              res.status(400).json(err)
+            );
+            return res.json({ msg: "Service successfully deleted" });
           } else {
             errors.service = "Service not found";
             return res.status(404).json(errors);
@@ -516,29 +479,25 @@ router.delete(
         // Check for valid product id
         Product.countDocuments({ _id: req.params.prod_id }, (err, count) => {
           if (count > 0) {
-            // Check for valid user
-            for (let member of organization.members) {
-              if (
-                member.user.toString() === req.user.id &&
-                member.permissions === "admin"
-              ) {
-                // Remove product id from organizstion list
-                const removeIndex = organization.productsList
-                  .map(item => item.id)
-                  .indexOf(req.params.prod_id);
+            // check user permissions
+            const { permErrors, isPermitted } = checkUserPermissions(
+              req.user.id,
+              organization
+            );
+            if (!isPermitted) return res.status(403).json(permErrors);
+            // Remove product id from organizstion list
+            const removeIndex = organization.productsList
+              .map(item => item.id)
+              .indexOf(req.params.prod_id);
 
-                organization.productsList.splice(removeIndex, 1);
-                organization.save();
+            organization.productsList.splice(removeIndex, 1);
+            organization.save();
 
-                // Delete actual object
-                Product.findByIdAndDelete(req.params.prod_id).catch(err =>
-                  res.status(400).json(err)
-                );
-                return res.json({ msg: "Product successfully deleted" });
-              }
-            }
-            errors.access = "Access denied";
-            res.status(403).json(errors);
+            // Delete actual object
+            Product.findByIdAndDelete(req.params.prod_id).catch(err =>
+              res.status(400).json(err)
+            );
+            return res.json({ msg: "Product successfully deleted" });
           } else {
             errors.product = "Product not found";
             return res.status(404).json(errors);
