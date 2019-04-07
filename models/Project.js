@@ -7,10 +7,8 @@ const ProjectSchema = new Schema({
   },
   subprojects: [
     {
-      subprojectId: {
-        type: Schema.Types.ObjectId,
-        ref: "subprojects"
-      }
+      type: Schema.Types.ObjectId,
+      ref: "subprojects"
     }
   ],
   creationDate: {

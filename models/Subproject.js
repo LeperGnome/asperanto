@@ -8,10 +8,8 @@ const SubprojectSchema = new Schema({
   },
   tradeRequests: [
     {
-      requestId: {
-        type: Schema.Types.ObjectId,
-        ref: "tradeRequests"
-      }
+      type: Schema.Types.ObjectId,
+      ref: "tradeRequests"
     }
   ],
   creationDate: {

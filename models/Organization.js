@@ -45,6 +45,12 @@ const OrganizationSchema = new Schema({
       ref: "services"
     }
   ],
+  projects: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "projects"
+    }
+  ],
   members: [
     {
       user: {

@@ -1,5 +1,7 @@
 const express = require("express");
 const passport = require("passport");
+const gravatar = require("gravatar");
+const bcrypt = require("bcryptjs");
 const slug = require("slug");
 const axios = require("axios");
 
@@ -11,86 +13,137 @@ const Product = require("../../models/Product");
 const Service = require("../../models/Service");
 const Profile = require("../../models/Profile");
 
+// Import validation
+const checkUserPermissions = require("../../validation/checkPermission");
+const validateRegisterOrgInput = require("../../validation/registerOrganization");
+
 // Import create organization input valdation
 const validateCreateOrganizationInput = require("../../validation/createOrganization");
 
 // Import create product input valiadtion
 const validateCreateProductOrServiceInput = require("../../validation/createProductOrService");
 
-//@route POST api/organizations/create
-//@desc  Create organization
-//@acces Private
-router.post(
-  "/create",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    const { errors, isValid } = validateCreateOrganizationInput(req.body);
-    //Check validation
-    if (!isValid) {
-      //Return any errors
-      return res.status(400).json(errors);
-    }
+//@route POST api/organizations/register
+//@desc  Register organization and user
+//@acces Public
+router.post("/register", (req, res) => {
+  const { errors, isValid } = validateRegisterOrgInput(req.body);
 
-    // Create urlName with slug
-    const urlName = slug(req.body.name, { lower: true, replacement: "_" });
-    Organization.count({ urlName }, (err, count) => {
-      if (count > 0) {
-        //
-        // EDIT FILE createOrganizationUrlName.js
-        //
-      }
-    });
-
-    newOrganization = new Organization({
-      name: req.body.name,
-      urlName: req.body.urlName,
-      industries: req.body.industries.split(","),
-      businessType: req.body.businessType,
-      countryOfIncorporation: req.body.countryOfIncorporation
-    });
-
-    // Adding creator to company members as administrator
-    newOrganization.members.unshift({
-      user: req.user.id,
-      permissions: "admin"
-    });
-
-    // Saving organization
-    newOrganization
-      .save()
-      .then(organization => res.json(organization))
-      .catch(err => res.status(400).json(err));
-
-    // Adding organization to profile
-    Profile.findOne({ user: req.user.id })
-      .populate("user", ["email"])
-      .then(profile => {
-        if (!profile) {
-          errors.profile = "Profile not found";
-          return res.status(404).json(errors);
-        }
-
-        profile.organizations.unshift({
-          comid: newOrganization._id,
-          position: "admin",
-          current: true
-        });
-        profile.save().catch(err => res.status(400).json(err));
-
-        // POST new organization to Hyperledger server
-
-        const organizationFields = {
-          organizationId: newOrganization._id,
-          asperantoType: "CUSTOMER",
-          accountBalance: 1000
-        };
-        axios
-          .post("http://87.236.23.98:3000/api/Organization", organizationFields)
-          .then(res => console.log(res.data))
-          .catch(err => console.log(err.data));
-      });
+  // Check for input errors
+  if (!isValid) {
+    //Return any errors
+    return res.status(400).json(errors);
   }
-);
+  User.findOne({
+    $or: [{ email: req.body.email }, { nickname: req.body.nickname }]
+  }).then(user => {
+    if (user) {
+      // Checking if there is user with requested email or nickname
+      if (user.email === req.body.email) {
+        errors.email = "Email already exists";
+      }
+      if (user.nickname === req.body.nickname) {
+        errors.nickname = "Nickname already exists";
+      }
+      return res.status(400).json(errors);
+    } else {
+      // Checking if organization urlName already exists
+      Organization.findOne({ urlName: req.body.urlName }).then(organization => {
+        if (organization) {
+          console.log(organization);
+          return res.status(400).json({ error: "urlName already exists" });
+        }
+        const avatar = gravatar.url(req.body.email, {
+          s: "200", // Size
+          r: "pg", // Rating
+          d: "mm" // Default
+        });
+
+        // Creating new user with requested parameters
+        const newUser = new User({
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          middleName: req.body.middleName,
+          nickname: req.body.nickname,
+          email: req.body.email,
+          avatar,
+          password: req.body.password
+        });
+
+        // Create passoword
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            newUser.password = hash;
+            newUser
+              .save()
+              .then(user => {
+                // Creating profile for user
+                newProfile = new Profile({ user });
+
+                // POST to Hyperledger server
+                axios
+                  .post("http://87.236.23.98:3000/api/Users", {
+                    userId: user._id
+                  })
+                  .then(res => console.log(res.data))
+                  .catch(err => console.log(err));
+
+                console.log(user);
+
+                //
+                // Create Organization
+                //
+                newOrganization = new Organization({
+                  name: req.body.orgName,
+                  urlName: req.body.urlName,
+                  industries: req.body.industries.split(","),
+                  businessType: req.body.businessType,
+                  countryOfIncorporation: req.body.countryOfIncorporation
+                });
+
+                // Adding creator to company members as administrator
+                newOrganization.members.unshift({
+                  user: user._id,
+                  permissions: "admin"
+                });
+
+                // Saving organization
+                newOrganization
+                  .save()
+                  .then(organization => console.log(organization))
+                  .catch(err => console.log(err));
+
+                // Adding organization to user profile
+                newProfile.organization.position = "admin";
+                newProfile.organization.comId = newOrganization._id;
+                newProfile.organization.current = true;
+
+                newProfile.save().catch(err => console.log(err));
+
+                res.json({ msg: "Success" });
+                // POST new organization to Hyperledger server
+
+                const organizationFields = {
+                  organizationId: newOrganization._id,
+                  asperantoType: "CUSTOMER",
+                  accountBalance: 1000
+                };
+                axios
+                  .post(
+                    "http://87.236.23.98:3000/api/Organization",
+                    organizationFields
+                  )
+                  .then(res => console.log(res.data))
+                  .catch(err => console.log(err.data));
+              })
+              .catch(err => console.log(err));
+          });
+        });
+      });
+    }
+  });
+});
 
 //@route GET api/organizations/all
 //@desc  Get limited info about all organizations
@@ -154,6 +207,8 @@ router.post(
         productFields.organization = organization._id;
         if (req.body.tags) productFields.tags = req.body.tags.split(",");
         if (req.body.image) productFields.image = req.body.image;
+        if (req.body.innerId) productFields.innerId = req.body.innerId;
+        if (req.body.potencial) productFields.potencial = req.body.potencial;
 
         // Create product obj
         newProduct = new Product(productFields);
@@ -295,6 +350,7 @@ router.get(
           organization
         );
         if (!isPermitted) return res.status(403).json(permErrors);
+
         return res.json(organization);
       })
       .catch(err => res.status(400).json(err));
@@ -338,9 +394,12 @@ router.post(
             if (req.body.name) newProductParams.name = req.body.name;
             if (req.body.image) newProductParams.image = req.body.image;
             if (req.body.price) newProductParams.price = req.body.price;
-            if (req.body.tags) newProductParams.tags = req.body.tags;
+            if (req.body.tags) newProductParams.tags = req.body.tags.split(",");
             if (req.body.description)
               newProductParams.description = req.body.description;
+            if (req.body.innerId) productFields.innerId = req.body.innerId;
+            if (req.body.potencial)
+              productFields.potencial = req.body.potencial;
 
             Product.findByIdAndUpdate(
               req.params.prod_id,

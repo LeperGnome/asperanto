@@ -8,7 +8,10 @@ module.exports = function checkUserPermissions(
   const permErrors = {};
   // Check for valid user
   for (let member of organization.members) {
-    if (member.user.toString() === user_id && member.permissions === position) {
+    if (
+      member.user.toString() === user_id.toString() &&
+      member.permissions === position
+    ) {
       return { permErrors, isPermitted: isEmpty(permErrors) };
     }
   }

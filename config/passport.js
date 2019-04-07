@@ -15,6 +15,7 @@ module.exports = passport => {
       User.findById(jwt_payload.id)
         .then(user => {
           if (user) {
+            user.organization = jwt_payload.organization;
             return done(null, user);
           }
           return done(null, false);

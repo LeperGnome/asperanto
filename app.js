@@ -6,12 +6,12 @@ const logger = require("morgan");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const cors = require("cors");
 
 const accountsRouter = require("./routes/api/accounts");
 const organizationsRouter = require("./routes/api/organizations");
 const productsRouter = require("./routes/api/products");
 const serviceRouter = require("./routes/api/services");
+const projectsRouter = require("./routes/api/projects");
 
 const app = express();
 
@@ -73,6 +73,7 @@ app.use("/api/accounts", accountsRouter);
 app.use("/api/organizations", organizationsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/services", serviceRouter);
+app.use("/api/projects", projectsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -87,7 +88,6 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
 });
 
 module.exports = app;

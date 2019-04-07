@@ -66,10 +66,7 @@ router.post(
     Product.countDocuments({ _id: req.params.prod_id }, (err, count) => {
       if (count > 0) {
         Product.findById(req.params.prod_id).then(product => {
-          //
-          // org_id must be in some sort of cookie
-          //
-          Organization.findOne({ _id: req.body.org_id })
+          Organization.findById(req.user.organization)
             .then(organization => {
               //check for valid url name
               if (!organization) {

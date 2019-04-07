@@ -9,32 +9,29 @@ const ProfileSchema = new Schema({
     ref: "users"
   },
   // List of companies related to user
-  organizations: [
-    {
-      comId: {
-        type: Schema.Types.ObjectId,
-        ref: "organizations"
-      },
-      position: {
-        type: String,
-        required: true
-      },
-      corporateEmail: {
-        type: String
-      },
-      from: {
-        type: Date,
-        default: Date.now()
-      },
-      to: {
-        type: Date
-      },
-      current: {
-        type: Boolean,
-        default: false
-      }
+  organization: {
+    comId: {
+      type: Schema.Types.ObjectId,
+      ref: "organizations"
+    },
+    position: {
+      type: String
+    },
+    corporateEmail: {
+      type: String
+    },
+    from: {
+      type: Date,
+      default: Date.now()
+    },
+    to: {
+      type: Date
+    },
+    current: {
+      type: Boolean,
+      default: false
     }
-  ],
+  },
   // List of user contacts
   contacts: [
     {
