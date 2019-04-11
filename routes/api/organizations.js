@@ -17,9 +17,6 @@ const Profile = require("../../models/Profile");
 const checkUserPermissions = require("../../validation/checkPermission");
 const validateRegisterOrgInput = require("../../validation/registerOrganization");
 
-// Import create organization input valdation
-const validateCreateOrganizationInput = require("../../validation/createOrganization");
-
 // Import create product input valiadtion
 const validateCreateProductOrServiceInput = require("../../validation/createProductOrService");
 
@@ -338,6 +335,7 @@ router.get(
     Organization.findOne({ urlName: req.params.org_urlname })
       .populate("productsList")
       .populate("servicesList")
+      .populate("projects")
       .then(organization => {
         // Check for valid organization url name
         if (!organization) {
