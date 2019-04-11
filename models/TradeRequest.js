@@ -14,12 +14,12 @@ statusList = [
 // Create trade request schema
 const TradeRequestSchema = new Schema({
   // seller
-  manufacturer: {
+  provider: {
     type: Schema.Types.ObjectId,
     ref: "organizations"
   },
   // buyer
-  developer: {
+  receiver: {
     type: Schema.Types.ObjectId,
     ref: "organizations"
   },
@@ -34,6 +34,10 @@ const TradeRequestSchema = new Schema({
   unitPrice: {
     type: Number,
     required: true
+  },
+  subproject: {
+    type: Schema.Types.ObjectId,
+    ref: "subprojects"
   },
   dateOfManufacture: {
     type: String,

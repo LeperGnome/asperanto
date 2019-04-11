@@ -335,7 +335,7 @@ router.get(
     Organization.findOne({ urlName: req.params.org_urlname })
       .populate("productsList")
       .populate("servicesList")
-      .populate("projects")
+      .populate({ path: "projects", populate: { path: "subprojects" } })
       .then(organization => {
         // Check for valid organization url name
         if (!organization) {

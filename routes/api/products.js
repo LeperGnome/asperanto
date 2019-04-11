@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const axios = require("axios");
+const mongoose = require("mongoose");
 
 const router = express.Router();
 
@@ -8,9 +9,11 @@ const router = express.Router();
 const Organization = require("../../models/Organization");
 const Product = require("../../models/Product");
 const TradeRequest = require("../../models/TradeRequest");
+const Subproject = require("../../models/Subproject");
 
 //Import validators
 const checkUserPermissions = require("../../validation/checkPermission");
+const validateRequestInput = require("../../validation/createTradeRequest");
 
 //@route GET api/products
 //@desc  Get all products
@@ -67,46 +70,99 @@ router.post(
       if (count > 0) {
         Product.findById(req.params.prod_id).then(product => {
           Organization.findById(req.user.organization)
+            .populate("projects")
             .then(organization => {
               //check for valid url name
               if (!organization) {
                 errors.organization = "Organization not found";
                 return res.status(404).json(errors);
               }
-              // check user permissions
-              const { permErrors, isPermitted } = checkUserPermissions(
-                req.user.id,
-                organization
-              );
-              if (!isPermitted) return res.status(403).json(permErrors);
+              // Check input fields
+              const { errors, isValid } = validateRequestInput(req.body);
+              if (!isValid) {
+                return res.status(400).json(errors);
+              }
+              Subproject.findById(
+                mongoose.Types.ObjectId(req.body.subprojectId)
+              )
+                .then(subproject => {
+                  // Check if subproject exists
+                  if (!subproject) {
+                    errors.subprojectId = "Subproject not found";
+                    return res.status(404).json(errors);
+                  }
 
-              // If user is valid member of company with permissions
-              const requestFields = {
-                manufacturer: product.organization._id,
-                developer: organization._id,
-                product: product._id,
-                unitCount: req.body.unitCount,
-                unitPrice: product.price,
-                dateOfManufacture: "2019-03-21T09:37:16.788Z"
-              };
-              const newRequest = new TradeRequest(requestFields);
+                  // Check if subproject belongs to your organization
+                  let arrayOfSubprojects = organization.projects.map(
+                    projects => projects.subprojects
+                  );
+                  const orgSubprojects = [].concat.apply(
+                    [],
+                    arrayOfSubprojects
+                  );
 
-              newRequest.save().then(tradeRequest => {
-                axios
-                  .post("http://87.236.23.98:3000/api/Manufacture", {
-                    manufactureId: tradeRequest._id,
-                    status: tradeRequest.status,
-                    manufacturer: tradeRequest.manufacturer,
-                    customer: tradeRequest.developer,
-                    product: tradeRequest.product,
-                    dateOfManufacture: tradeRequest.dateOfManufacture,
-                    unitPrice: tradeRequest.unitPrice,
-                    unitCount: tradeRequest.unitCount
-                  })
-                  .then(res => console.log(res.data))
-                  .catch(err => console.log(err));
-              });
-              return res.json(newRequest);
+                  if (
+                    !orgSubprojects
+                      .map(subproject => subproject.toString())
+                      .includes(req.body.subprojectId)
+                  ) {
+                    errors.subprojectId = "Foreign subproject";
+                    return res.status(403).json(errors);
+                  }
+
+                  // Check product ownership
+                  if (
+                    req.user.organization ===
+                    product.organization._id.toString()
+                  ) {
+                    errors.selfRequest =
+                      "You are trying to create request to youself";
+                    return res.status(400).json(errors);
+                  }
+
+                  // check user permissions
+                  const { permErrors, isPermitted } = checkUserPermissions(
+                    req.user.id,
+                    organization
+                  );
+                  if (!isPermitted) return res.status(403).json(permErrors);
+
+                  // If user is valid member of company with permissions
+                  const requestFields = {
+                    provider: product.organization._id,
+                    receiver: organization._id,
+                    product: product._id,
+                    unitCount: req.body.unitCount,
+                    unitPrice: product.price,
+                    subproject: req.body.subprojectId,
+                    dateOfManufacture: "2019-03-21T09:37:16.788Z" // ????
+                  };
+                  const newRequest = new TradeRequest(requestFields);
+
+                  newRequest.save().then(tradeRequest => {
+                    // POST to hyperledger server
+                    axios
+                      .post("http://87.236.23.98:3000/api/Manufacture", {
+                        manufactureId: tradeRequest._id,
+                        status: tradeRequest.status,
+                        manufacturer: tradeRequest.provider,
+                        customer: tradeRequest.receiver,
+                        product: tradeRequest.product,
+                        dateOfManufacture: tradeRequest.dateOfManufacture,
+                        unitPrice: tradeRequest.unitPrice,
+                        unitCount: tradeRequest.unitCount
+                      })
+                      .then(res => console.log(res.data))
+                      .catch(err => console.log(err));
+                  });
+
+                  // Add new request to subproject
+                  subproject.tradeRequests.unshift(newRequest);
+                  subproject.save().catch(err => console.log(err));
+
+                  return res.json(newRequest);
+                })
+                .catch(err => console.log(err));
             })
             .catch(err => res.json(err));
         });

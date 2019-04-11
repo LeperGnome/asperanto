@@ -1,6 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const axios = require("axios");
+const mongoose = require("mongoose");
 
 const router = express.Router();
 
@@ -86,7 +87,14 @@ router.post(
     Organization.findById(req.user.organization)
       .populate("projects")
       .then(organization => {
-        Project.findById(req.params.proj_id).then(project => {
+        // Check for valid mongoose id
+        try {
+          var project_id = mongoose.Types.ObjectId(req.params.proj_id);
+        } catch (err) {
+          return res.status(400).json({ error: "Incorret project id" });
+        }
+
+        Project.findById(project_id).then(project => {
           // Check if project exists
           if (!project) {
             return res.status(404).json({ error: "Project not found" });
@@ -98,6 +106,7 @@ router.post(
               .map(project => project._id.toString())
               .includes(project._id.toString())
           ) {
+            // if project does not belong to your organization
             return res.status(403).json({ error: "Foreign project" });
           }
           const { permErrors, isPermitted } = checkUserPermissions(
@@ -105,13 +114,13 @@ router.post(
             organization
           );
           if (!isPermitted) {
+            // if you do not have permissions to create project/subproject in your organization
             return res.status(403).json(permErrors);
           }
 
           // Input validation
           const { errors, isValid } = validateProjectInput(req.body);
           if (!isValid) {
-            // Return input errors
             return req.satatus(400).json(errors);
           }
           // Creating a new project
