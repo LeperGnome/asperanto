@@ -59,7 +59,7 @@ router.post(
         const { errors, isValid } = validateProjectInput(req.body);
         if (!isValid) {
           // Return input errors
-          return req.satatus(400).json(errors);
+          return res.status(400).json(errors);
         }
         // Creating a new project
         newProject = new Project({ name: req.body.name });

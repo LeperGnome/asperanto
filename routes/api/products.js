@@ -29,7 +29,7 @@ router.get("/", (req, res) => {
       description: true
     }
   )
-    .populate("organization", ["name", "_id"])
+    .populate("organization", ["name", "urlName"])
     .then(products => {
       if (!products) {
         errors.noproducts = "No products found";
@@ -47,9 +47,11 @@ router.get("/:prod_id", (req, res) => {
   const errors = {};
   Product.countDocuments({ _id: req.params.prod_id }, (err, count) => {
     if (count > 0) {
-      Product.findById(req.params.prod_id).then(product => {
-        return res.json(product);
-      });
+      Product.findById(req.params.prod_id)
+        .populate("organization", ["name", "urlName"])
+        .then(product => {
+          return res.json(product);
+        });
     } else {
       errors.product = "Product not found";
       return res.status(404).json(errors);

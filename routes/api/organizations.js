@@ -154,7 +154,8 @@ router.get("/all", (req, res) => {
       industries: true,
       asperantoType: true,
       countryOfIncorporation: true,
-      registeredFrom: true
+      registeredFrom: true,
+      urlName: true
     }
   )
     .then(organizations => {
@@ -317,7 +318,8 @@ router.get("/:org_urlname", (req, res) => {
         countryOfIncorporation: organization.countryOfIncorporation,
         registeredFrom: organization.registeredFrom,
         productsList: organization.productsList,
-        servicesList: organization.servicesList
+        servicesList: organization.servicesList,
+        urlName: organization.urlName
       };
       res.json(orgPublicInfo);
     })

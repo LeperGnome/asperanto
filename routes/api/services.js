@@ -21,6 +21,7 @@ router.get("/", (req, res) => {
       description: true
     }
   )
+    .populate("organization", ["name", "urlName"])
     .then(services => {
       if (!services) {
         errors.noservices = "No services found";
@@ -38,9 +39,11 @@ router.get("/:serv_id", (req, res) => {
   errors = {};
   Service.countDocuments({ _id: req.params.serv_id }, (err, count) => {
     if (count > 0) {
-      Service.findById(req.params.serv_id).then(service => {
-        return res.json(service);
-      });
+      Service.findById(req.params.serv_id)
+        .populate("organization", ["name", "urlName"])
+        .then(service => {
+          return res.json(service);
+        });
     } else {
       errors.service = "Service not found";
       return res.status(404).json(errors);

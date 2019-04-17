@@ -94,6 +94,7 @@ router.get(
         "avatar",
         "regDate"
       ])
+      .populate("organization.comId", ["urlName", "name"])
       .then(profile => {
         if (!profile) {
           errors.profile = "Profile not found";
@@ -121,6 +122,7 @@ router.get(
         "nickname",
         "email"
       ])
+      .populate("organization.comId", ["urlName", "name"])
       .then(profile => res.json(profile))
       .catch(err => res.status(400).json());
   }
@@ -171,6 +173,7 @@ router.get("/:nickname", (req, res) => {
           "nickname",
           "avatar"
         ])
+        .populate("organization.comId", ["name", "urlName"])
         .then(profile => {
           if (!profile) {
             errors.nouser = "User not found";

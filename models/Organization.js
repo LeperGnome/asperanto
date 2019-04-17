@@ -63,7 +63,10 @@ const OrganizationSchema = new Schema({
         required: true
       }
     }
-  ]
+  ],
+  tags: {
+    type: [String]
+  }
 });
 
 module.exports = Organization = mongoose.model(
