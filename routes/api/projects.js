@@ -23,7 +23,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     Organization.findById(req.user.organization)
-      .populate("projects")
+      .populate({ path: "projects", populate: { path: "subprojects" } })
       .then(organization => {
         const { permErrors, isPermitted } = checkUserPermissions(
           req.user._id,
@@ -121,7 +121,7 @@ router.post(
           // Input validation
           const { errors, isValid } = validateProjectInput(req.body);
           if (!isValid) {
-            return req.satatus(400).json(errors);
+            return res.status(400).json(errors);
           }
           // Creating a new project
           newSubproject = new Subproject({ name: req.body.name });

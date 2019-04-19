@@ -22,11 +22,11 @@ module.exports = function validateRequestInput(data) {
   }
 
   if (Validator.isEmpty(data.unitCount)) {
-    errors.unitCount = "Count field is reqired";
+    errors.unitCount = "Count field is required";
   }
 
   if (Validator.isEmpty(data.subprojectId)) {
-    errors.subprojectId = "Subprojct field is reqired";
+    errors.subprojectId = "Subproject field is required";
   }
 
   return {

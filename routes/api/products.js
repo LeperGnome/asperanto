@@ -118,7 +118,7 @@ router.post(
                     product.organization._id.toString()
                   ) {
                     errors.selfRequest =
-                      "You are trying to create request to youself";
+                      "You are trying to create request to yourself";
                     return res.status(400).json(errors);
                   }
 
