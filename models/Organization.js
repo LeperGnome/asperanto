@@ -29,6 +29,11 @@ const OrganizationSchema = new Schema({
     type: String,
     required: true
   },
+  avatar: {
+    type: String,
+    default:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqO9yLoKdTlU9pPQDHfNlrGRUTV-8va-BcFU7duh3SziFoeFQJjA"
+  },
   registeredFrom: {
     type: Date,
     default: Date.now()

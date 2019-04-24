@@ -162,6 +162,13 @@ router.post(
                   subproject.tradeRequests.unshift(newRequest);
                   subproject.save().catch(err => console.log(err));
 
+                  // Add new request to provider's organization project
+                  Subproject.findById(product.subprojectId)
+                    .then(subproject => {
+                      subproject.tradeRequests.unshift(newRequest);
+                    })
+                    .catch(err => console.log(err));
+
                   return res.json(newRequest);
                 })
                 .catch(err => console.log(err));

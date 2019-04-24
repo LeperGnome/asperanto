@@ -62,7 +62,10 @@ router.post(
           return res.status(400).json(errors);
         }
         // Creating a new project
-        newProject = new Project({ name: req.body.name });
+        newProject = new Project({
+          name: req.body.name,
+          organization
+        });
         newProject
           .save()
           .then(project => {
@@ -124,7 +127,7 @@ router.post(
             return res.status(400).json(errors);
           }
           // Creating a new project
-          newSubproject = new Subproject({ name: req.body.name });
+          newSubproject = new Subproject({ name: req.body.name, organization });
           newSubproject
             .save()
             .then(subproject => {

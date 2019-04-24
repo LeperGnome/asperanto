@@ -27,6 +27,10 @@ const ProductSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "organizations"
   },
+  subprojectId: {
+    type: Schema.Types.ObjectId,
+    ref: "subprojects"
+  },
   potencial: {
     type: Boolean,
     default: false

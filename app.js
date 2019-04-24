@@ -12,6 +12,7 @@ const organizationsRouter = require("./routes/api/organizations");
 const productsRouter = require("./routes/api/products");
 const serviceRouter = require("./routes/api/services");
 const projectsRouter = require("./routes/api/projects");
+const subprojectsRouter = require("./routes/api/subprojects");
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use("/api/organizations", organizationsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/services", serviceRouter);
 app.use("/api/projects", projectsRouter);
+app.use("/api/subprojects", subprojectsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -11,6 +11,10 @@ const ProjectSchema = new Schema({
       ref: "subprojects"
     }
   ],
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "organizations"
+  },
   creationDate: {
     type: Date,
     default: Date.now
