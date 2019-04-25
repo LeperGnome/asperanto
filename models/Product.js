@@ -44,4 +44,13 @@ const ProductSchema = new Schema({
   }
 });
 
+const autoPopulate = function(next) {
+  this.populate("organization", ["name", "urlName", "avatar"]);
+  next();
+};
+
+ProductSchema.pre("find", autoPopulate).pre("findOne", autoPopulate);
+
+ProductSchema.index({ name: "text", description: "text" });
+
 module.exports = Product = mongoose.model("products", ProductSchema);

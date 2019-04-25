@@ -176,13 +176,13 @@ router.post(
   "/:org_urlname/products/create",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const errors = {};
     Organization.findOne({ urlName: req.params.org_urlname })
       .then(organization => {
         //check for valid url name
         if (!organization) {
-          errors.organization = "Organization not found";
-          return res.status(404).json(errors);
+          return res
+            .status(404)
+            .json({ organization: "Organization not found" });
         }
         // check user permissions
         const { permErrors, isPermitted } = checkUserPermissions(

@@ -7,12 +7,17 @@ const ServiceSchema = new Schema({
     type: String,
     required: true
   },
+  // Product id inside company
+  innerId: {
+    type: String
+  },
   price: {
     type: Number,
     required: true
   },
   image: {
     type: String
+    //, default : ???
   },
   description: {
     type: String,
@@ -21,6 +26,10 @@ const ServiceSchema = new Schema({
   organization: {
     type: Schema.Types.ObjectId,
     ref: "organizations"
+  },
+  subprojectId: {
+    type: Schema.Types.ObjectId,
+    ref: "subprojects"
   },
   potencial: {
     type: Boolean,
@@ -34,5 +43,14 @@ const ServiceSchema = new Schema({
     default: Date.now()
   }
 });
+
+const autoPopulate = function(next) {
+  this.populate("organization", ["name", "urlName", "avatar"]);
+  next();
+};
+
+ServiceSchema.pre("find", autoPopulate).pre("findOne", autoPopulate);
+
+ServiceSchema.index({ name: "text", description: "text" });
 
 module.exports = Service = mongoose.model("services", ServiceSchema);

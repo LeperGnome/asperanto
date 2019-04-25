@@ -14,6 +14,7 @@ const Subproject = require("../../models/Subproject");
 //Import validators
 const checkUserPermissions = require("../../validation/checkPermission");
 const validateRequestInput = require("../../validation/createTradeRequest");
+const validateSearchInput = require("../../validation/checkSearchField");
 
 //@route GET api/products
 //@desc  Get all products
@@ -26,10 +27,12 @@ router.get("/", (req, res) => {
       name: true,
       image: true,
       price: true,
-      description: true
+      description: true,
+      organization: true,
+      potencial: true,
+      tags: true
     }
   )
-    .populate("organization", ["name", "urlName"])
     .then(products => {
       if (!products) {
         errors.noproducts = "No products found";
@@ -40,6 +43,39 @@ router.get("/", (req, res) => {
     .catch(err => res.status(400).json(err));
 });
 
+//@route POST api/products/search
+//@desc  Products text search
+//@acces Public
+router.post("/search", (req, res) => {
+  // Check input errors
+  const { errors, isValid } = validateSearchInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  Product.find(
+    { $text: { $search: req.body.text } },
+    {
+      name: true,
+      tags: true,
+      price: true,
+      potencial: true,
+      addDate: true,
+      image: true,
+      organization: true,
+      description: true
+    }
+  )
+    .then(products => {
+      if (products.length == 0) {
+        // if no products are found
+        return res.json({ products: "Ничего не найдено" });
+      }
+      res.json(products);
+    })
+    .catch(err => console.log(err));
+});
+
 //@route GET api/products/:prod_id
 //@desc  Get info about product
 //@acces Public
@@ -47,11 +83,9 @@ router.get("/:prod_id", (req, res) => {
   const errors = {};
   Product.countDocuments({ _id: req.params.prod_id }, (err, count) => {
     if (count > 0) {
-      Product.findById(req.params.prod_id)
-        .populate("organization", ["name", "urlName"])
-        .then(product => {
-          return res.json(product);
-        });
+      Product.findById(req.params.prod_id).then(product => {
+        return res.json(product);
+      });
     } else {
       errors.product = "Product not found";
       return res.status(404).json(errors);

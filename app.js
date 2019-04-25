@@ -52,6 +52,7 @@ mongoose
   .connect(db, { useNewUrlParser: true })
   .then(() => console.log("MongoDB connected."))
   .catch(err => console.log(err));
+mongoose.set("useCreateIndex", true);
 
 // Passport middleware
 app.use(passport.initialize());

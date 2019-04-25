@@ -19,6 +19,9 @@ module.exports = function validateRegisterInput(data) {
   if (!Validator.isNumeric(data.price)) {
     errors.price = "Price should be a number";
   }
+  if (data.price <= 0) {
+    errors.price = "Price should be a positive number";
+  }
   try {
     var validSubprojectId = mongoose.Types.ObjectId(data.subprojectId);
   } catch (err) {
