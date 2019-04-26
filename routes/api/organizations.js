@@ -327,7 +327,6 @@ router.get("/:org_urlname", (req, res) => {
         errors.organization = "Organization not found";
         return res.status(404).json(errors);
       }
-
       // Pick info for response
       const orgPublicInfo = {
         name: organization.name,
@@ -521,8 +520,8 @@ router.delete(
             if (!isPermitted) return res.status(403).json(permErrors);
             // Remove service id from organizstion list
             const removeIndex = organization.servicesList
-              .map(item => item.id)
-              .indexOf(req.params.serv_id);
+              .map(item => item._id.toString())
+              .indexOf(req.params.serv_id.toString());
 
             organization.servicesList.splice(removeIndex, 1);
             organization.save();
@@ -568,8 +567,8 @@ router.delete(
             if (!isPermitted) return res.status(403).json(permErrors);
             // Remove product id from organizstion list
             const removeIndex = organization.productsList
-              .map(item => item.id)
-              .indexOf(req.params.prod_id);
+              .map(item => item._id.toString())
+              .indexOf(req.params.prod_id.toString());
 
             organization.productsList.splice(removeIndex, 1);
             organization.save();
