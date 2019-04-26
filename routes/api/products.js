@@ -165,29 +165,42 @@ router.post(
 
                   // If user is valid member of company with permissions
                   const requestFields = {
-                    provider: product.organization._id,
-                    receiver: organization._id,
                     product: product._id,
                     unitCount: req.body.unitCount,
                     unitPrice: product.price,
                     subproject: req.body.subprojectId,
                     dateOfManufacture: "2019-03-21T09:37:16.788Z" // ????
                   };
+
+                  // Swap provider and receiver if project is potencial
+                  if (!product.potencial) {
+                    requestFields.provider = product.organization._id;
+                    requestFields.receiver = organization._id;
+                  } else {
+                    requestFields.provider = organization._id;
+                    requestFields.receiver = product.organization._id;
+                  }
+
                   const newRequest = new TradeRequest(requestFields);
 
                   newRequest.save().then(tradeRequest => {
                     // POST to hyperledger server
+                    const requestFieldsHyper = {
+                      manufactureId: tradeRequest._id,
+                      status: tradeRequest.status,
+                      manufacturer: tradeRequest.provider,
+                      customer: tradeRequest.receiver,
+                      product: tradeRequest.product,
+                      dateOfManufacture: tradeRequest.dateOfManufacture,
+                      unitPrice: tradeRequest.unitPrice,
+                      unitCount: tradeRequest.unitCount
+                    };
+
                     axios
-                      .post("http://87.236.23.98:3000/api/Manufacture", {
-                        manufactureId: tradeRequest._id,
-                        status: tradeRequest.status,
-                        manufacturer: tradeRequest.provider,
-                        customer: tradeRequest.receiver,
-                        product: tradeRequest.product,
-                        dateOfManufacture: tradeRequest.dateOfManufacture,
-                        unitPrice: tradeRequest.unitPrice,
-                        unitCount: tradeRequest.unitCount
-                      })
+                      .post(
+                        "http://87.236.23.98:3000/api/Manufacture",
+                        requestFieldsHyper
+                      )
                       .then(res => console.log(res.data))
                       .catch(err => console.log(err));
                   });
