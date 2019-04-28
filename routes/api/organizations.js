@@ -4,6 +4,7 @@ const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const slug = require("slug");
 const axios = require("axios");
+const fs = require('fs');
 
 const router = express.Router();
 
@@ -177,77 +178,163 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const errors = {};
-    Organization.findOne({ urlName: req.params.org_urlname })
-      .then(organization => {
-        //check for valid url name
-        if (!organization) {
-          errors.organization = "Organization not found";
-          return res.status(404).json(errors);
-        }
-        // check user permissions
-        const { permErrors, isPermitted } = checkUserPermissions(
-          req.user.id,
-          organization
-        );
-        if (!isPermitted) return res.status(403).json(permErrors);
 
-        // Product creation
-        let { errors, isValid } = validateCreateProductOrServiceInput(req.body);
-        // Check input validation
-        if (!isValid) {
-          return res.status(400).json(errors);
-        }
-
-        Subproject.findById(req.body.subprojectId).then(subproject => {
-          if (!subproject) {
-            errors.subproject = "Subproject not found";
+    // check request type
+    if (req.headers['content-type'] == "application/x-www-form-urlencoded") {
+      Organization.findOne({ urlName: req.params.org_urlname })
+        .then(organization => {
+          //check for valid url name
+          if (!organization) {
+            errors.organization = "Organization not found";
             return res.status(404).json(errors);
           }
-          // Check if subproject is in your organization
-          if (
-            subproject.organization._id.toString() !==
-            req.user.organization.toString()
-          ) {
-            errors.subproject = "Foreign subproject";
-            return res.status(403).json(errors);
+          // check user permissions
+          const { permErrors, isPermitted } = checkUserPermissions(
+            req.user.id,
+            organization
+          );
+          if (!isPermitted) return res.status(403).json(permErrors);
+
+          // Product creation
+          let { errors, isValid } = validateCreateProductOrServiceInput(req.body);
+          // Check input validation
+          if (!isValid) {
+            return res.status(400).json(errors);
           }
 
-          const productFields = {};
+          Subproject.findById(req.body.subprojectId).then(subproject => {
+            if (!subproject) {
+              errors.subproject = "Subproject not found";
+              return res.status(404).json(errors);
+            }
+            // Check if subproject is in your organization
+            if (
+              subproject.organization._id.toString() !==
+              req.user.organization.toString()
+            ) {
+              errors.subproject = "Foreign subproject";
+              return res.status(403).json(errors);
+            }
 
-          productFields.name = req.body.name;
-          productFields.price = req.body.price;
-          productFields.description = req.body.description;
-          productFields.organization = organization._id;
-          productFields.subprojectId = req.body.subprojectId;
+            const productFields = {};
 
-          if (req.body.tags) productFields.tags = req.body.tags.split(",");
-          if (req.body.image) productFields.image = req.body.image;
-          if (req.body.innerId) productFields.innerId = req.body.innerId;
-          if (req.body.potencial) productFields.potencial = req.body.potencial;
+            productFields.name = req.body.name;
+            productFields.price = req.body.price;
+            productFields.description = req.body.description;
+            productFields.organization = organization._id;
+            productFields.subprojectId = req.body.subprojectId;
 
-          // Create product obj
-          newProduct = new Product(productFields);
+            if (req.body.tags) productFields.tags = req.body.tags.split(",");
+            if (req.body.image) productFields.image = req.body.image;
+            if (req.body.innerId) productFields.innerId = req.body.innerId;
+            if (req.body.potencial) productFields.potencial = req.body.potencial;
 
-          // Save
-          newProduct
-            .save()
-            .then(product => {
-              // Add product to organization list
-              addAsperantoType = "Производитель";
-              organization.productsList.unshift(product);
+            // Create product obj
+            newProduct = new Product(productFields);
 
-              // Add asperanto type if not exists
-              if (!organization.asperantoType.includes(addAsperantoType)) {
-                organization.asperantoType.unshift(addAsperantoType);
-              }
+            // Save
+            newProduct
+              .save()
+              .then(product => {
+                // Add product to organization list
+                addAsperantoType = "Производитель";
+                organization.productsList.unshift(product);
 
-              organization.save().catch(err => res.status(400).json(err));
-            })
-            .catch(err => console.log(err));
-          return res.json(newProduct);
-        });
-      })
-      .catch(err => res.json(err));
+                // Add asperanto type if not exists
+                if (!organization.asperantoType.includes(addAsperantoType)) {
+                  organization.asperantoType.unshift(addAsperantoType);
+                }
+
+                organization.save().catch(err => res.status(400).json(err));
+              })
+              .catch(err => console.log(err));
+            return res.json(newProduct);
+          });
+        })
+        .catch(err => res.json(err));
+    } else {
+      Organization.findOne({ urlName: req.params.org_urlname })
+        .then(organization => {
+      //check for valid url name
+      if (!organization) {
+        errors.organization = "Organization not found";
+        return res.status(404).json(errors);
+      }
+      // check user permissions
+      const { permErrors, isPermitted } = checkUserPermissions(
+        req.user.id,
+        organization
+      );
+      if (!isPermitted) return res.status(403).json(permErrors);
+
+      // parse csv to json
+      var csvString = fs.readFileSync('test_data.csv', 'utf8');
+      var csvArray = csvString.split("\r\n");
+      var parseData = "{" + '"name":'+ '"' + csvArray[0].replace('\ufeff', '') + '",' +
+      '"price":' + '"' + csvArray[2] + '",' +
+      '"description":' + '"' + csvArray[1] + '",' +
+      '"subprojectId":' + '"' + csvArray[5] + '"' +
+      "}"
+      var data = JSON.parse(parseData)
+
+      // Product creation
+      var {erros, isValid} = validateCreateProductOrServiceInput(data);
+      // Check input validation
+      if (!isValid) {
+        return res.status(400).json(erros);
+      }
+
+      Subproject.findById(data.subprojectId).then(subproject => {
+        if (!subproject) {
+          errors.subproject = "Subproject not found";
+          return res.status(404).json(errors);
+        }
+        // Check if subproject is in your organization
+        if (
+          subproject.organization._id.toString() !==
+          req.user.organization.toString()
+        ) {
+          errors.subproject = "Foreign subproject";
+          return res.status(403).json(errors);
+        }
+
+        const productFields = {};
+
+        productFields.name = data.name;
+        productFields.price = data.price;
+        productFields.description = data.description;
+        productFields.organization = organization._id;
+        productFields.subprojectId = data.subprojectId;
+
+        if (data.tags) productFields.tags = data.tags.split(",");
+        if (data.image) productFields.image = data.image;
+        if (data.innerId) productFields.innerId = data.innerId;
+        if (data.potencial) productFields.potencial = data.potencial;
+
+        // Create product obj
+        newProduct = new Product(productFields);
+
+        // Save
+        newProduct
+          .save()
+          .then(product => {
+            // Add product to organization list
+            addAsperantoType = "Производитель";
+            organization.productsList.unshift(product);
+
+            // Add asperanto type if not exists
+            if (!organization.asperantoType.includes(addAsperantoType)) {
+              organization.asperantoType.unshift(addAsperantoType);
+            }
+
+            organization.save().catch(err => res.status(400).json(err));
+          })
+          .catch(err => console.log(err));
+        return res.json(newProduct);
+      });
+    })
+    .catch(err => res.json(err));
+    }
   }
 );
 
