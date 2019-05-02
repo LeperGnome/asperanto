@@ -13,8 +13,11 @@ const Product = require("../../models/Product");
 const Service = require("../../models/Service");
 const Profile = require("../../models/Profile");
 const Subproject = require("../../models/Subproject");
+const Invitation = require("../../models/Invitation");
+const User = require("../../models/User");
 
 // Import validation
+const checkInvitationInput = require("../../validation/checkInvitation");
 const checkUserPermissions = require("../../validation/checkPermission");
 const validateRegisterOrgInput = require("../../validation/registerOrganization");
 
@@ -142,6 +145,51 @@ router.post("/register", (req, res) => {
     }
   });
 });
+
+//@route POST api/organizations/add_member
+//@desc  Add new member to organization
+//@acces Private
+router.post(
+  "/add_member",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    // Check invitation input
+    const { errors, isValid } = checkInvitationInput(req.body);
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+    console.log("passed validation");
+    //Check for invitation with given email
+    Invitation.find({ email: req.body.email, active: true })
+      .then(invitations => {
+        if (invitations.length > 0) {
+          errors.email = "This user is already invited";
+          return res.status(400).json(errors);
+        }
+        // Check for user with given email
+        User.find({ email: req.body.email })
+          .then(users => {
+            if (users.length > 0) {
+              errors.email = "User with this email already exists";
+              return res.status(400).json(errors);
+            }
+            console.log(1);
+            // If email was never user in system
+            let invitationFields = req.body;
+            invitationFields.organization = req.user.organization;
+
+            const newInvitation = new Invitation(invitationFields);
+            newInvitation.save().catch(err => {
+              return res.status(400).json(err);
+            });
+
+            return res.json(newInvitation);
+          })
+          .catch(err => console.log(err));
+      })
+      .catch(err => console.log(err));
+  }
+);
 
 //@route GET api/organizations/all
 //@desc  Get limited info about all organizations
