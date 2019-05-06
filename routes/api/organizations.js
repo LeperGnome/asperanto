@@ -158,36 +158,47 @@ router.post(
     if (!isValid) {
       return res.status(400).json(errors);
     }
-    console.log("passed validation");
-    //Check for invitation with given email
-    Invitation.find({ email: req.body.email, active: true })
-      .then(invitations => {
-        if (invitations.length > 0) {
-          errors.email = "This user is already invited";
-          return res.status(400).json(errors);
-        }
-        // Check for user with given email
-        User.find({ email: req.body.email })
-          .then(users => {
-            if (users.length > 0) {
-              errors.email = "User with this email already exists";
-              return res.status(400).json(errors);
-            }
-            console.log(1);
-            // If email was never user in system
-            let invitationFields = req.body;
-            invitationFields.organization = req.user.organization;
 
-            const newInvitation = new Invitation(invitationFields);
-            newInvitation.save().catch(err => {
-              return res.status(400).json(err);
-            });
+    Organization.findById(req.user.organization).then(organization => {
+      // Check user permissions
+      const { permErrors, isPermitted } = checkUserPermissions(
+        req.user._id,
+        organization
+      );
 
-            return res.json(newInvitation);
-          })
-          .catch(err => console.log(err));
-      })
-      .catch(err => console.log(err));
+      if (!isPermitted) {
+        return res.status(403).json(permErrors);
+      }
+
+      //Check for invitation with given email
+      Invitation.find({ email: req.body.email, active: true })
+        .then(invitations => {
+          if (invitations.length > 0) {
+            errors.email = "This user is already invited";
+            return res.status(400).json(errors);
+          }
+          // Check for user with given email
+          User.find({ email: req.body.email })
+            .then(users => {
+              if (users.length > 0) {
+                errors.email = "User with this email already exists";
+                return res.status(400).json(errors);
+              }
+              // If email was never user in system
+              let invitationFields = req.body;
+              invitationFields.organization = req.user.organization;
+
+              const newInvitation = new Invitation(invitationFields);
+              newInvitation.save().catch(err => {
+                return res.status(400).json(err);
+              });
+
+              return res.json(newInvitation);
+            })
+            .catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
+    });
   }
 );
 

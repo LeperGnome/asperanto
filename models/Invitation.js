@@ -18,6 +18,10 @@ const InvitationSchema = new Schema({
   active: {
     type: Boolean,
     default: true
+  },
+  inviteDate: {
+    type: Date,
+    default: Date.now()
   }
   // SHOULD ADD HASH
   // right now _id stands for it
