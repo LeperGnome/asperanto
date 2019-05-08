@@ -19,6 +19,10 @@ const InvitationSchema = new Schema({
     type: Boolean,
     default: true
   },
+  accepted: {
+    type: Boolean,
+    default: false
+  },
   inviteDate: {
     type: Date,
     default: Date.now()

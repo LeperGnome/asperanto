@@ -97,32 +97,33 @@ module.exports = function validateRegisterOrgInput(data) {
     errors.nickname = "Необходимо заполнить поле с никнеймом";
   }
 
-  if (Validator.isEmpty(data.email)) {
-    // errors.email = "Email field is reqired";
-    errors.email = "Необходимо заполнить поле с email";
-  }
   if (!Validator.isEmail(data.email)) {
     // errors.email = "Email is invalid";
     errors.email = "Поле email заполнено некорректно";
   }
-
-  if (Validator.isEmpty(data.password)) {
-    // errors.password = "Password field is reqired";
-    errors.password = "Необходимо заполнить поле с паролем";
+  if (Validator.isEmpty(data.email)) {
+    // errors.email = "Email field is reqired";
+    errors.email = "Необходимо заполнить поле с email";
   }
+
   if (!Validator.isLength(data.password, { min: 6, max: 30 })) {
     // errors.password = "Password must be ay least 6 characters";
     errors.password = "Пароль должен содержать хотя бы 6 символов";
   }
-
-  if (Validator.isEmpty(data.password2)) {
-    // errors.password2 = "Confirm password field is reqired";
-    errors.password2 = "Необходимо заполнить поле подтверждения пароля";
+  if (Validator.isEmpty(data.password)) {
+    // errors.password = "Password field is reqired";
+    errors.password = "Необходимо заполнить поле с паролем";
   }
+
   if (!Validator.equals(data.password, data.password2)) {
     // errors.password2 = "Passwords must match";
     errors.password2 = "Пароли должны совпадать";
   }
+  if (Validator.isEmpty(data.password2)) {
+    // errors.password2 = "Confirm password field is reqired";
+    errors.password2 = "Необходимо заполнить поле подтверждения пароля";
+  }
+
   //
   // Organization fields
   //

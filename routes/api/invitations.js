@@ -2,6 +2,9 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const gravatar = require("gravatar");
+const axios = require("axios");
 
 // Import  models
 const Organization = require("../../models/Organization");
@@ -9,6 +12,7 @@ const Invitation = require("../../models/Invitation");
 
 //Import validators
 const checkUserPermissions = require("../../validation/checkPermission");
+const createUser = require("../../validation/createUser");
 
 //@route GET api/invitations
 //@desc  View all organization's invitations
@@ -29,7 +33,7 @@ router.get(
   }
 );
 
-//@route GET api/invitations/:id/check_invite
+//@route GET api/invitations/:id/check
 //@desc  Check if invite is still active
 //@acces Public
 router.get("/:id/check_invite", (req, res) => {
@@ -93,6 +97,98 @@ router.post(
       .catch(err => res.status(403).json(err));
   }
 );
+
+//@route GET api/invitations/:id/submit
+//@desc  Submit incoming invitation
+//@acces Public
+router.post("/:id/submit", (req, res) => {
+  // Check for valid mongoose id
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ invitation: "Invalid invitation id" });
+  }
+
+  Invitation.findById(req.params.id).then(invitation => {
+    if (!invitation) {
+      return res.status(404).json({ invitation: "Invitation not found" });
+    }
+    // Check if invitation is inactive
+    if (!invitation.active) {
+      return res.status(400).json({ invitation: "Invitation is inactive" });
+    }
+
+    // Validate user input
+    const { errors, isValid } = createUser(req.body);
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    // Accepting invitation
+    invitation.active = false;
+    invitation.accepted = true;
+    invitation.save().catch(err => console.log(err));
+    // Creating new user with requested parameters
+    const avatar = gravatar.url(invitation.email, {
+      s: "200", // Size
+      r: "pg", // Rating
+      d: "mm" // Default
+    });
+
+    const newUser = new User({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      middleName: req.body.middleName,
+      nickname: req.body.nickname,
+      email: invitation.email,
+      avatar,
+      password: req.body.password
+    });
+
+    // Create passoword
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newUser.password, salt, (err, hash) => {
+        if (err) throw err;
+        newUser.password = hash;
+        newUser
+          .save()
+          .then(user => {
+            // POST to Hyperledger server
+            axios
+              .post("http://87.236.23.98:3000/api/Users", {
+                userId: user._id
+              })
+              .then(res => console.log(res.data))
+              .catch(err => console.log(err));
+
+            Organization.findById(invitation.organization.toString())
+              .then(organization => {
+                // Adding new member to organization
+                organization.members.unshift({
+                  user: user._id,
+                  permissions: invitation.permissions
+                });
+
+                // Saving organization
+                organization.save().catch(err => console.log(err));
+
+                // Creating profile for user
+                newProfile = new Profile({ user });
+
+                // Adding organization to user profile
+                newProfile.organization.position = invitation.position;
+                newProfile.organization.comId = organization._id;
+                newProfile.organization.current = true;
+
+                newProfile.save().catch(err => console.log(err));
+
+                res.json(user);
+              })
+              .catch(err => console.log(err));
+          })
+          .catch(err => console.log(err));
+      });
+    });
+  });
+});
 
 //@route GET api/invitations/:id
 //@desc  View organizaion's invitaion by id
