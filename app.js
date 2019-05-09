@@ -14,6 +14,7 @@ const serviceRouter = require("./routes/api/services");
 const projectsRouter = require("./routes/api/projects");
 const subprojectsRouter = require("./routes/api/subprojects");
 const invitationsRouter = require("./routes/api/invitations");
+const tradeRequestsRouter = require("./routes/api/tradeRequests");
 
 const app = express();
 
@@ -79,10 +80,11 @@ app.use("/api/services", serviceRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/subprojects", subprojectsRouter);
 app.use("/api/invitations", invitationsRouter);
+app.use("/api/tradeRequests", tradeRequestsRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use("*", (req, res) => {
+  res.status(404).json({ error: "Page not found" });
 });
 
 // error handler

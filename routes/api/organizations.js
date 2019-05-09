@@ -12,7 +12,6 @@ const Organization = require("../../models/Organization");
 const Product = require("../../models/Product");
 const Service = require("../../models/Service");
 const Profile = require("../../models/Profile");
-const Subproject = require("../../models/Subproject");
 const Invitation = require("../../models/Invitation");
 const User = require("../../models/User");
 
@@ -228,6 +227,26 @@ router.get("/all", (req, res) => {
     .catch(err => res.status(400).json(err));
 });
 
+//@route GET api/organizations/:org_urlname/products
+//@desc  View organization's products
+//@acces public
+router.get("/:org_urlname/products", (req, res) => {
+  Organization.findOne({ urlName: req.params.org_urlname })
+    .then(organization => {
+      //check for valid url name
+      if (!organization) {
+        return res.status(404).json({ organization: "Organization not found" });
+      }
+      Product.find({ organization: organization._id }).then(products => {
+        if (products.length <= 0) {
+          return res.status(404).json({ products: "Products not found" });
+        }
+        res.json(products);
+      });
+    })
+    .catch(err => console.log(err));
+});
+
 //@route POST api/organizations/:org_urlname/products/create
 //@desc  Create product
 //@acces Private
@@ -257,54 +276,38 @@ router.post(
           return res.status(400).json(errors);
         }
 
-        Subproject.findById(req.body.subprojectId).then(subproject => {
-          if (!subproject) {
-            errors.subproject = "Subproject not found";
-            return res.status(404).json(errors);
-          }
-          // Check if subproject is in your organization
-          if (
-            subproject.organization._id.toString() !==
-            req.user.organization.toString()
-          ) {
-            errors.subproject = "Foreign subproject";
-            return res.status(403).json(errors);
-          }
+        const productFields = {};
 
-          const productFields = {};
+        productFields.name = req.body.name;
+        productFields.price = req.body.price;
+        productFields.description = req.body.description;
+        productFields.organization = organization._id;
 
-          productFields.name = req.body.name;
-          productFields.price = req.body.price;
-          productFields.description = req.body.description;
-          productFields.organization = organization._id;
-          productFields.subprojectId = req.body.subprojectId;
+        if (req.body.tags) productFields.tags = req.body.tags.split(",");
+        if (req.body.image) productFields.image = req.body.image;
+        if (req.body.innerId) productFields.innerId = req.body.innerId;
+        if (req.body.potencial) productFields.potencial = req.body.potencial;
 
-          if (req.body.tags) productFields.tags = req.body.tags.split(",");
-          if (req.body.image) productFields.image = req.body.image;
-          if (req.body.innerId) productFields.innerId = req.body.innerId;
-          if (req.body.potencial) productFields.potencial = req.body.potencial;
+        // Create product obj
+        newProduct = new Product(productFields);
 
-          // Create product obj
-          newProduct = new Product(productFields);
+        // Save
+        newProduct
+          .save()
+          .then(product => {
+            // Add product to organization list
+            addAsperantoType = "Производитель";
+            organization.productsList.unshift(product);
 
-          // Save
-          newProduct
-            .save()
-            .then(product => {
-              // Add product to organization list
-              addAsperantoType = "Производитель";
-              organization.productsList.unshift(product);
+            // Add asperanto type if not exists
+            if (!organization.asperantoType.includes(addAsperantoType)) {
+              organization.asperantoType.unshift(addAsperantoType);
+            }
 
-              // Add asperanto type if not exists
-              if (!organization.asperantoType.includes(addAsperantoType)) {
-                organization.asperantoType.unshift(addAsperantoType);
-              }
-
-              organization.save().catch(err => res.status(400).json(err));
-            })
-            .catch(err => console.log(err));
-          return res.json(newProduct);
-        });
+            organization.save().catch(err => res.status(400).json(err));
+          })
+          .catch(err => console.log(err));
+        return res.json(newProduct);
       })
       .catch(err => res.json(err));
   }
@@ -478,8 +481,6 @@ router.post(
             if (req.body.innerId) productFields.innerId = req.body.innerId;
             if (req.body.potencial)
               productFields.potencial = req.body.potencial;
-            if (req.body.subprojectId)
-              newProductParams.subprojectId = req.body.subprojectId;
 
             Product.findByIdAndUpdate(
               req.params.prod_id,
@@ -647,8 +648,4 @@ router.delete(
   }
 );
 
-//@route DELETE api/organizations/edit
-//@desc  Edit organization info
-//@acces Private
-//router.post("")
 module.exports = router;
