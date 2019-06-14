@@ -92,4 +92,14 @@ router.get(
     });
   }
 );
+
+//@route GET api/tardeRequests/:trade_id/send_message
+//@desc  Send message to you business partner about trade request
+//@acces Private
+router.post(
+  ":trade_id/send_message",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {}
+);
+
 module.exports = router;
